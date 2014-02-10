@@ -247,7 +247,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     stbptr->dsmcc_len = sizeof( struct st_dsmcc_hdr ) + ntohs( dsmccptr->hdr.msgLen );
 
     /* send the message and then wait for response */
-    i = send_data( stbptr->srvrptr, ( gchar* ) & ( stbptr->dsmcc ), stbptr->dsmcc_len );
+    i = send_data( stbptr->srvrptr, ( gchar* ) &stbptr->dsmcc, stbptr->dsmcc_len );
 
     if ( i == stbptr->dsmcc_len ) {
         /* message sent in its entirety
@@ -320,7 +320,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
     }
 
 
-    recv_data( srvrptr, ( gchar* ) & ( stbptr->dsmcc ) , sizeof stbptr->dsmcc );
+    recv_data( srvrptr, ( gchar* ) &stbptr->dsmcc , sizeof stbptr->dsmcc );
 
     /* we received a message so stop the time out timer */
     stbptr->time_out.tv_sec  = NEVEREXPIRE;
