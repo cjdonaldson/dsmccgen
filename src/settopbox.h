@@ -1,10 +1,11 @@
 #ifndef __SETTOPBOX_H__
 #define __SETTOPBOX_H__
 
-#include <glib.h>
+#include "glib-min.h"
 #include <string.h>
 #include <pthread.h>
 #include <sys/types.h>
+#include <stdio.h>
 
 #include "sdvserver.h"
 #include "dsmcc.h"
@@ -36,8 +37,7 @@
 #define NEVEREXPIRE 0xFFFFFFFF  /* end of time */
 
 
-enum e_state
-{
+enum e_state {
     e_state_next,
     e_state_wait,
     e_state_tx,
@@ -46,52 +46,52 @@ enum e_state
 
 typedef enum e_state estate;
 
-struct st_settop_box
-{
-    estate  state, prevstate;
-    guint   flags;
-    struct timeval dwell_time_period;
-    struct timeval dwell_time;
-    struct timeval time_out;
-    guint  tunefailcnt;
-    
+struct st_settop_box {
+    estate    state;
+    estate    prevstate;
+    guint     flags;
+    struct    timeval dwell_time_period;
+    struct    timeval dwell_time;
+    struct    timeval time_out;
+    guint     tunefailcnt;
+
     /* stb objects */
-    guint8  macaddr[10];         /* mac addr 6 + tuner# 1 + reseved 3 */
-    guint   sourceId;
-    guint   frequency;
-    guint   modulation;
-    guint   mpegnumber;
-    
+    guint8    macaddr[10];         /* mac addr 6 + tuner# 1 + reseved 3 */
+    guint     sourceId;
+    guint     frequency;
+    guint     modulation;
+    guint     mpegnumber;
+
     /* SDV objects */
-    server_t *srvrptr;
-    guint    servicegroup;
-    guint32  transxId;
-    guint32  msgId, prevmsgId;
-    
-    guint    dsmcc_len;
-    dsmcc_t  dsmcc;
+    server_t* srvrptr;
+    guint     servicegroup;
+    guint32   transxId;
+    guint32   msgId, prevmsgId;
+
+    guint     dsmcc_len;
+    dsmcc_t   dsmcc;
 };
 
 typedef struct st_settop_box stb_t;
 
-gchar* sessionId_to_string( guint8 *sessionId );
+gchar* sessionId_to_string( guint8* sessionId );
 
-void stb_init( stb_t *stbptr, guint sgnumber, server_t *srvrptr,
-       guint stb_base, guint stb_number, guint flags, struct timeval dwell_time_period );
+void stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr,
+               guint stb_base, guint stb_number, guint flags, struct timeval dwell_time_period );
 
-gboolean stb_run( stb_t *stbptr,
-                  gint *srcidptr, gint srcid_min, gint srcid_max,
+gboolean stb_run( stb_t* stbptr,
+                  gint* srcidptr, gint srcid_min, gint srcid_max,
                   gboolean b_txgatedmsg );
 
 
-gboolean stb_dsmcc_out( stb_t *stbptr );
-gboolean stb_dsmcc_in( stb_t *stbptr );
+gboolean stb_dsmcc_out( stb_t* stbptr );
+gboolean stb_dsmcc_in( stb_t* stbptr );
 
-void stb_FSM( stb_t *stbptr, gint *srcidptr, gint srcid_min, gint srcid_max );
+void stb_FSM( stb_t* stbptr, gint* srcidptr, gint srcid_min, gint srcid_max );
 
-void print_stb( stb_t *stbptr );
-void dbg_print_stb( gchar *str, stb_t *stbptr );
+void print_stb( stb_t* stbptr );
+void dbg_print_stb( gchar* str, stb_t* stbptr );
 
-gint stbcmp( gchar *macptr1, gchar *macptr2 );
+gint stbcmp( gchar* macptr1, gchar* macptr2 );
 
 #endif

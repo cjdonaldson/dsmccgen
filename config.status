@@ -489,12 +489,12 @@ s,@INSTALL_DATA@,${INSTALL} -m 644,;t t
 s,@CYGPATH_W@,echo,;t t
 s,@PACKAGE@,full-package-name,;t t
 s,@VERSION@,VERSION,;t t
-s,@ACLOCAL@,${SHELL} /home/dlm/dsmccgen/missing --run aclocal-1.9,;t t
-s,@AUTOCONF@,${SHELL} /home/dlm/dsmccgen/missing --run autoconf,;t t
-s,@AUTOMAKE@,${SHELL} /home/dlm/dsmccgen/missing --run automake-1.9,;t t
-s,@AUTOHEADER@,${SHELL} /home/dlm/dsmccgen/missing --run autoheader,;t t
-s,@MAKEINFO@,${SHELL} /home/dlm/dsmccgen/missing --run makeinfo,;t t
-s,@install_sh@,/home/dlm/dsmccgen/install-sh,;t t
+s,@ACLOCAL@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run aclocal-1.9,;t t
+s,@AUTOCONF@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run autoconf,;t t
+s,@AUTOMAKE@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run automake-1.9,;t t
+s,@AUTOHEADER@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run autoheader,;t t
+s,@MAKEINFO@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run makeinfo,;t t
+s,@install_sh@,/moto/dsmccgen-dev/dsmccgen/install-sh,;t t
 s,@STRIP@,,;t t
 s,@ac_ct_STRIP@,,;t t
 s,@INSTALL_STRIP_PROGRAM@,${SHELL} $(install_sh) -c -s,;t t
@@ -502,7 +502,7 @@ s,@mkdir_p@,mkdir -p --,;t t
 s,@AWK@,gawk,;t t
 s,@SET_MAKE@,,;t t
 s,@am__leading_dot@,.,;t t
-s,@AMTAR@,${SHELL} /home/dlm/dsmccgen/missing --run tar,;t t
+s,@AMTAR@,${SHELL} /moto/dsmccgen-dev/dsmccgen/missing --run tar,;t t
 s,@am__tar@,${AMTAR} chof - "$$tardir",;t t
 s,@am__untar@,${AMTAR} xf -,;t t
 s,@CXX@,g++,;t t
