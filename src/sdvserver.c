@@ -1,17 +1,14 @@
 
-
 #include "dsmcc.h"
 #include "sdvserver.h"
 
 /* variables are declared globally as multiple functions use them */
 #define POLLTIMEOUT 0          /* x msec */
-#define POLLFLAGS POLLIN
+#define POLLFLAGS   POLLIN
 
 gboolean
 set_ip( server_t* svrptr, gchar* ipptr ) {
-    gint len;
-
-    len           = strlen( ipptr );
+    gint len      = strlen( ipptr );
     svrptr->svmip = malloc( len + 1 );
 
     if ( svrptr->svmip == 0 ) {
@@ -27,13 +24,10 @@ set_ip( server_t* svrptr, gchar* ipptr ) {
     return TRUE;
 }
 
-
 gboolean
 init_channel( server_t* svrptr ) {
     struct hostent* host;
-    int yes;
-
-    yes = 1;
+    int yes = 1;
 
     if ( svrptr->socket_initd ) {
         return TRUE;
@@ -94,10 +88,8 @@ init_channel( server_t* svrptr ) {
 gint
 send_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
 #define TXFLAGS 0
-    gint bytes_sent;
-
-    bytes_sent = sendto( svrptr->sockfd, buffptr, buff_len, TXFLAGS,
-                         ( struct sockaddr* )&svrptr->dst_addr, sizeof svrptr->dst_addr );
+    gint bytes_sent = sendto( svrptr->sockfd, buffptr, buff_len, TXFLAGS,
+                              ( struct sockaddr* )&svrptr->dst_addr, sizeof svrptr->dst_addr );
 
     if ( bytes_sent == -1 ) {
         perror( "send" );
@@ -135,19 +127,15 @@ is_data( server_t* svrptr ) {
     return ( rv > 0 );
 }
 
-
 gint
 peek_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
     /*  return > 0 if data available
      *  return = 0 if no data available
      *  return < 0 if error
      */
-    gint i;
-    gint msglen;
-
-    i = sizeof svrptr->dst_addr;
-    msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, MSG_PEEK,
-                       ( struct sockaddr* )&svrptr->dst_addr, &i );
+    gint i      = sizeof svrptr->dst_addr;
+    gint msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, MSG_PEEK,
+                            ( struct sockaddr* )&svrptr->dst_addr, &i );
 
     if ( msglen == -1 ) {
         perror( "peek_data" );
@@ -162,13 +150,9 @@ recv_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
      *  return = 0 if no data available
      *  return < 0 if error
      */
-    gint msglen;
-    gint i;
-
-    i = sizeof svrptr->dst_addr;
-
-    msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, 0,
-                       ( struct sockaddr* )&svrptr->dst_addr, &i );
+    gint i      = sizeof svrptr->dst_addr;
+    gint msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, 0,
+                            ( struct sockaddr* )&svrptr->dst_addr, &i );
 
     if ( msglen == -1 ) {
         perror( "recv_data" );

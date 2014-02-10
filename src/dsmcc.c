@@ -1,10 +1,6 @@
 
 #include "dsmcc.h"
 
-//fd_set master;   // master file descriptor list
-//fd_set read_fds; // temp file descriptor list for select()
-//int fdmax;        // maximum file descriptor number
-
 gchar vsbuff[120];
 
 gchar*
@@ -30,4 +26,3 @@ print_dsmcc( gchar dsmccptr[], gint len ) {
 
     printf( "\n" );
 }
-

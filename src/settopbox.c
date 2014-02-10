@@ -71,11 +71,11 @@ stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr, guint stb_base, guin
 }
 
 guint
-snprint_log( char* cbuffptr, struct timeval* tmvalptr, stb_t* stbptr ) {
+snprint_log( char* cbuffptr, int cbufflen, struct timeval* tmvalptr, stb_t* stbptr ) {
     guint i;
 
-    i  = strftime( cbuffptr, 500, "%a %d%b%Y %H:%M:%S", localtime( &tmvalptr->tv_sec ) );
-    i += snprintf( cbuffptr + i, 500 - i, ".%03i ", tmvalptr->tv_usec / 1000 );
+    i  = strftime( cbuffptr, cbufflen, "%a %d%b%Y %H:%M:%S", localtime( &tmvalptr->tv_sec ) );
+    i += snprintf( cbuffptr + i, cbufflen - i, ".%03i ", tmvalptr->tv_usec / 1000 );
 
     return i;
 }
@@ -83,20 +83,13 @@ snprint_log( char* cbuffptr, struct timeval* tmvalptr, stb_t* stbptr ) {
 
 gboolean
 stb_dsmcc_out( stb_t* stbptr ) {
-    dsmcc_t*      dsmccptr;
+    dsmcc_t*      dsmccptr = &stbptr->dsmcc;
 
     /* static variable only because we will be here often */
-    static gint   msglen;
-    static gchar* buff;
-#define TXFLAGS 0
-    static gint   bytes_sent;
-    static char   cbuff[500];
+    static gint    msglen;
+    static gchar*  buff;
+#   define TXFLAGS 0
 
-    gboolean      b_display;
-
-    static gint   i;
-
-    dsmccptr = &stbptr->dsmcc;
 
     struct timeval tmval;
 
@@ -105,15 +98,17 @@ stb_dsmcc_out( stb_t* stbptr ) {
         perror( "stb_dsmcc_out gettimeofday: " );
     }
 
-    snprint_log( cbuff, &tmval, stbptr );
+    static char    cbuff[500];
+    snprint_log( cbuff, sizeof cbuff, &tmval, stbptr );
 
     if ( dsmccptr->hdr.descriminator != DSMCC_DESCRIMINATOR ) {
         /* here if first time */
         /* set the default values for root structure */
-        dsmccptr->hdr.descriminator  = DSMCC_DESCRIMINATOR;
-        dsmccptr->hdr.type           = DSMCC_TYPE_SDV;
-        dsmccptr->hdr.res            = 0xFF;
-        dsmccptr->hdr.adaptLen       = 0x00;
+        struct st_dsmcc_hdr hdr = dsmccptr->hdr;
+        hdr.descriminator  = DSMCC_DESCRIMINATOR;
+        hdr.type           = DSMCC_TYPE_SDV;
+        hdr.res            = 0xFF;
+        hdr.adaptLen       = 0x00;
 
         /* not part of hdr but common to all payloads */
         memcpy( dsmccptr->sdb_init_request.sessId, stbptr->macaddr, sizeof stbptr->macaddr );
@@ -124,11 +119,12 @@ stb_dsmcc_out( stb_t* stbptr ) {
         dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_init_request ) );
 
         /* payload for init v2.12 */
-        dsmccptr->sdb_init_request.res1           = 0xFFFF;
-        dsmccptr->sdb_init_request.serviceGroupId = htonl( stbptr->servicegroup );
-        dsmccptr->sdb_init_request.version1       = 0;
-        dsmccptr->sdb_init_request.res2           = 0xFF;
-        dsmccptr->sdb_init_request.numDesc        = 0;
+        struct st_dsmcc_sdb_init_request* sdb_init_request = &dsmccptr->sdb_init_request;
+        sdb_init_request->res1           = 0xFFFF;
+        sdb_init_request->serviceGroupId = htonl( stbptr->servicegroup );
+        sdb_init_request->version1       = 0;
+        sdb_init_request->res2           = 0xFF;
+        sdb_init_request->numDesc        = 0;
         /*dsmccptr->sdb_init_request.version2      = 0; */
 
         if ( stbptr->flags & VERBOSEOUT ) {
@@ -145,13 +141,15 @@ stb_dsmcc_out( stb_t* stbptr ) {
         dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_select_request ) );
 
         /* payload for select request */
-        dsmccptr->sdb_select_request.retryCount     = 0xFF;
-        dsmccptr->sdb_select_request.res1           = 0xFF;
-        dsmccptr->sdb_select_request.sourceId       = htonl( stbptr->sourceId );
-        dsmccptr->sdb_select_request.dataLen        = htons( ( guint16 )0x0006 );
-        dsmccptr->sdb_select_request.tunerUse       = 0;
-        dsmccptr->sdb_select_request.res2           = 0xFF;
-        dsmccptr->sdb_select_request.serviceGroupId = htonl( stbptr->servicegroup );
+        struct st_dsmcc_sdb_select_request* sdb_select_request = &dsmccptr->sdb_select_request;
+
+        sdb_select_request->retryCount     = 0xFF;
+        sdb_select_request->res1           = 0xFF;
+        sdb_select_request->sourceId       = htonl( stbptr->sourceId );
+        sdb_select_request->dataLen        = htons( ( guint16 )0x0006 );
+        sdb_select_request->tunerUse       = 0;
+        sdb_select_request->res2           = 0xFF;
+        sdb_select_request->serviceGroupId = htonl( stbptr->servicegroup );
 
         if ( stbptr->flags & VERBOSEOUT ) {
             /* display some stuff */
@@ -169,13 +167,13 @@ stb_dsmcc_out( stb_t* stbptr ) {
         /* payload for select response */
         dsmccptr->sdb_select_response.response = htons( rspOk );
         dsmccptr->sdb_select_response.dataLen  = 0;  /* set to 0 */
+        gint i = ntohs( dsmccptr->sdb_select_response.response );
 
-        b_display = stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL )
-                    || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        gboolean b_display  = stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL )
+                           || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
 
         if ( b_display ) {
             /* display some stuff */
-            i = ntohs( dsmccptr->sdb_select_response.response );
 
             printf( "%s  r>: %s  %s  %s\n",
                     cbuff,
@@ -205,14 +203,17 @@ stb_dsmcc_out( stb_t* stbptr ) {
         /* take care of header */
         dsmccptr->hdr.msgLen                         = htons( sizeof( struct st_dsmcc_sdb_query_confirm ) );
 
+        struct st_dsmcc_sdb_query_confirm* sdb_query_confirm = &dsmccptr->sdb_query_confirm;
+
+
         /* payload for query confirm */
-        dsmccptr->sdb_query_confirm.response         = htons( rspOk );
-        //dsmccptr->sdb_query_confirm.sourceId       = ; /* do not change */
-        dsmccptr->sdb_query_confirm.dataLen          = 10;
-        dsmccptr->sdb_query_confirm.tunerUse         = 0x08;
-        dsmccptr->sdb_query_confirm.res2             = 0xFF;
-        dsmccptr->sdb_query_confirm.serviceGroupId   = htonl( stbptr->servicegroup );
-        dsmccptr->sdb_query_confirm.lastUserActivity = htonl( tmval.tv_sec );
+        sdb_query_confirm->response         = htons( rspOk );
+        //sdb_query_confirm->sourceId       = ; /* do not change */
+        sdb_query_confirm->dataLen          = 10;
+        sdb_query_confirm->tunerUse         = 0x08;
+        sdb_query_confirm->res2             = 0xFF;
+        sdb_query_confirm->serviceGroupId   = htonl( stbptr->servicegroup );
+        sdb_query_confirm->lastUserActivity = htonl( tmval.tv_sec );
 
         if ( stbptr->flags & ( VERBOSEOUT | VERBOSEERROR ) ) {
             /* display some stuff */
@@ -230,8 +231,6 @@ stb_dsmcc_out( stb_t* stbptr ) {
 
         printf( "    " );
         print_dsmcc( ( gchar* )dsmccptr, sizeof * dsmccptr );
-//        for ( i = 0; i < sizeof *dsmccptr; i++ )
-//            printf( "%02X", ((gchar *)(&dsmccptr))[i] );
 
         printf( "\n\n\n\n" );
 
@@ -247,7 +246,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     stbptr->dsmcc_len       = sizeof( struct st_dsmcc_hdr ) + ntohs( dsmccptr->hdr.msgLen );
 
     /* send the message and then wait for response */
-    i = send_data( stbptr->srvrptr, ( gchar* ) &stbptr->dsmcc, stbptr->dsmcc_len );
+    gint i = send_data( stbptr->srvrptr, ( gchar* ) &stbptr->dsmcc, stbptr->dsmcc_len );
 
     if ( i == stbptr->dsmcc_len ) {
         /* message sent in its entirety
@@ -327,7 +326,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
         perror( "stb_dsmcc_in gettimeofday: " );
     }
 
-    snprint_log( cbuff, &tmval, stbptr );
+    snprint_log( cbuff, sizeof cbuff, &tmval, stbptr );
 
     dsmccptr      = &stbptr->dsmcc;
     stbptr->msgId = ntohs( dsmccptr->hdr.msgId );
@@ -494,38 +493,31 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
      *          EventI   -------->  EventRsp
      *                    (intrnl)  ActRpt
      */
-    gboolean       b_display;
-    gboolean       b_timeout;
-    gboolean       b_dwelling;
-    gboolean       b_dbgabnevnt;
 
-    guint          oldstate;
-    guint          oldmsg;
-
-    struct timeval tmval;
-
-    gchar*         fsmdbgtxtptr;
 
     /* get seconds and useconds for timing */
+    struct timeval tmval;
     if ( gettimeofday( &tmval, NULL ) != 0 ) {
         perror( "stb_fsm gettimeofday: " );
     }
 
-    b_dbgabnevnt = FALSE;
-    fsmdbgtxtptr = " FSM ";
-
-    oldstate     = stbptr->state;
-    oldmsg       = stbptr->msgId;
-
+    gboolean       b_dwelling;
     b_dwelling  = ( stbptr->state == e_state_next );
     b_dwelling &= ( tmval.tv_sec < stbptr->dwell_time.tv_sec ) ||
                   ( tmval.tv_sec == stbptr->dwell_time.tv_sec &&
                     tmval.tv_usec < stbptr->dwell_time.tv_usec );
 
+    gboolean b_timeout;
     b_timeout  = ( stbptr->state == e_state_wait );
     b_timeout &= ( tmval.tv_sec > stbptr->time_out.tv_sec ) ||
                  ( tmval.tv_sec == stbptr->time_out.tv_sec &&
                    tmval.tv_usec > stbptr->time_out.tv_usec );
+
+    gboolean       b_dbgabnevnt = FALSE;
+    gchar*         fsmdbgtxtptr = " FSM ";
+
+    estate         oldstate     = stbptr->state;
+    guint32        oldmsg       = stbptr->msgId;
 
     if ( stbptr->state == e_state_done ) {
         ;    /* here if this stb is done; do nothing */
@@ -652,6 +644,7 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         stbptr->state = e_state_done;
     }
 
+    gboolean  b_display;
     b_display  =      stbptr->flags & DBGFSMFULL;
     b_display |= (    stbptr->flags & DBGFSMABN ) &&
                  (    stbptr->msgId == DSMCC_MSGID_SDV_SELECT_INDICATION
@@ -674,16 +667,13 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
 
 gchar*
 sessionId_to_string( guint8 sessionId[] ) {
-    int i, j;
-    //gchar *buff;
-    //buff = malloc( 40 );
-
+    guint i, j;
     for ( i = 0, j = 0; i < 10; i++, j += 2 ) {
         snprintf( vsbuff + j, 40 - j, "%02X", sessionId[i] );
     }
 
     return vsbuff;
-} /* sessionId_to_string */
+}
 
 void
 dbg_print_stb( gchar* str, stb_t* stbptr ) {
@@ -692,7 +682,7 @@ dbg_print_stb( gchar* str, stb_t* stbptr ) {
     }
 
     print_stb( stbptr );
-} /* dbg_print_stb */
+}
 
 const value_string debug_stbstate_names[] = {
     { e_state_next, "n" },
@@ -704,11 +694,10 @@ const value_string debug_stbstate_names[] = {
 
 void
 print_stb( stb_t* stbptr ) {
-    struct timeval tmval;
-    guint          time;
-    gint           i;
+    //gint           i;
 
     /* get seconds and useconds for timing */
+    struct timeval tmval;
     if ( gettimeofday( &tmval, NULL ) != 0 ) {
         perror( "print_stb gettimeofday: " );
     }
@@ -724,6 +713,7 @@ print_stb( stb_t* stbptr ) {
                     val_to_string( stbptr->state, debug_stbstate_names ),
                     val_to_string( stbptr->msgId, dsmcc_msgid_names ) );
     */
+    guint time;
     time = ( stbptr->time_out.tv_sec - tmval.tv_sec ) * SECOND_UTIME +
            ( stbptr->time_out.tv_usec - tmval.tv_usec );
 

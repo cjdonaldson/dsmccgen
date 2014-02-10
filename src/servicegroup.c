@@ -14,10 +14,6 @@ static gboolean b_debug = FALSE;
 
 gboolean
 sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
-    struct timeval dwell_time_period;
-    guint          i;
-    stb_t*         stbptr;
-
     if ( sgptr == NULL ) {
         return FALSE;
     }
@@ -51,8 +47,7 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
             return FALSE;
         }
 
-        i = sgptr->stbcnt * sizeof ( stb_t );
-        sgptr->stbbegin = malloc( i );
+        sgptr->stbbegin = malloc( sgptr->stbcnt * sizeof ( stb_t ) );
         if ( sgptr->stbbegin == NULL ) {
             perror( " stb alloc" );
             return FALSE;
@@ -60,11 +55,13 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
 
         sgptr->stbend = &( sgptr->stbbegin[ sgptr->stbcnt - 1 ] );
 
+        struct timeval dwell_time_period;
         dwell_time_period.tv_sec  = sgptr->dwell;
         dwell_time_period.tv_usec = 0;
 
-        stbptr = sgptr->stbbegin;
-        for ( i = 1; i <= sgptr->stbcnt; i++, stbptr++ ) {
+        stb_t* stbptr = sgptr->stbbegin;
+        guint i;
+        for ( i = 1; i <= sgptr->stbcnt; ++i, ++stbptr ) {
             stb_init( stbptr, sgptr->servicegroup, sgptr->srvrptr,
                       sgptr->stbbase, i, sgptr->flags, dwell_time_period );
         }
@@ -79,8 +76,7 @@ void
 purge( servicegroup_t* sgptr ) {
     recv_data( sgptr->srvrptr, ( gchar* )&stb.dsmcc, sizeof stb.dsmcc );
     printf( "purge %s\n", sessionId_to_string( stb.dsmcc.sdb_init_request.sessId ) );
-} /* purge */
-
+}
 
 void
 print_log( struct timeval* tvptr, stb_t* stbptr ) {
@@ -88,18 +84,11 @@ print_log( struct timeval* tvptr, stb_t* stbptr ) {
 
     strftime( timestr, sizeof timestr, "%a %d%b%Y %H:%M:%S", localtime( &tvptr->tv_sec ) );
     printf( "%s.%03i   sg%-5i ", timestr, tvptr->tv_usec / 1000, stbptr->servicegroup );
-} /* print_log */
-
+}
 
 void
 check_for_data( servicegroup_t* sgptr ) {
     static gint stuck_cnt = 0;
-
-    gint        cmpr;
-
-    stb_t*      stb_b_itr;
-    stb_t*      stb_e_itr;
-    stb_t*      stb_m_itr;
 
     server_t*   svrptr    = sgptr->srvrptr;
 
@@ -110,7 +99,7 @@ check_for_data( servicegroup_t* sgptr ) {
         stuck_cnt = 0;
     }
 
-    cmpr = 0; /* just to get into the loop */
+    gint cmpr = 0; /* just to get into the loop */
     while ( cmpr == 0 && is_data( svrptr ) && ( abort_request == 0 ) ) {
         /* here if a message is waiting */
         /* check to see if it is one of our stbs */
@@ -122,14 +111,13 @@ check_for_data( servicegroup_t* sgptr ) {
         }
 
         /* here if stb in rcv buff is part of this group */
-        stb_b_itr = sgptr->stbbegin;
-        stb_e_itr = sgptr->stbend;
+        stb_t* stb_b_itr = sgptr->stbbegin;
+        stb_t* stb_e_itr = sgptr->stbend;
         while ( ( stb_b_itr <= stb_e_itr ) && ( abort_request == 0 ) ) {
-            stb_m_itr = stb_b_itr + ( ( stb_e_itr - stb_b_itr ) >> 1 );
+            stb_t* stb_m_itr = stb_b_itr + ( ( stb_e_itr - stb_b_itr ) >> 1 );
 
             /* really only need look at macaddr[4:5] bytes */
-            cmpr = stbcmp( stb_m_itr->macaddr,
-                           stb.dsmcc.sdb_init_request.sessId );
+            cmpr = stbcmp( stb_m_itr->macaddr, stb.dsmcc.sdb_init_request.sessId );
 
             /* test relationship of stb to stb_m_itr */
             if ( cmpr == 0 ) {
@@ -184,39 +172,14 @@ check_for_data( servicegroup_t* sgptr ) {
  *
  */
 
-
-
-
 void*
 sg_run_task( void* ptr ) {
-    guint sourceId;
-    guint32 i;
-
-    struct timeval  tmval; /* use system time to minimize timing jitter */
-//    guint this_time;
-    guint           sleep_time;
-
-    gboolean        b_run;
-    gboolean        b_send;
-
-//    guint sendcnt;
-
-    gchar*          buff;
-
-    servicegroup_t* sgptr;
-    server_t*       svrptr;
-    stb_t*          stbptr;
-    stb_t*          stbitr;
-
-    gboolean        b_gatedmsg;
-    gboolean        b_timeout;
-
     /* some pointers to help with code clarity */
-    sgptr    = ( servicegroup_t* )ptr;
-    svrptr   = sgptr->srvrptr;
+    servicegroup_t* sgptr    = ( servicegroup_t* )ptr;
+    server_t*       svrptr   = sgptr->srvrptr;
 
     /* set arting source id */
-    sourceId = sgptr->srcidmin;
+    guint sourceId = sgptr->srcidmin;
 
     if ( !init_channel( svrptr ) ) {
         /* here if server socket setup failed */
@@ -226,43 +189,46 @@ sg_run_task( void* ptr ) {
 
     printf( "running task sg%i\n", sgptr->servicegroup );
 
-    stbptr = sgptr->stbbegin;
-
     /* calculate first time step as now and sleep times */
     /* get seconds and useconds for timing */
+    struct timeval  tmval; /* use system time to minimize timing jitter */
     if ( gettimeofday( &tmval, NULL ) != 0 ) {
         perror( "sq_run_task gettimeofday: " );
     }
 
+    stb_t*          stbptr = sgptr->stbbegin;
+    stb_t*          stbend = sgptr->stbend;
+
     /* unext_time is an effort to minimize timing jitter */
     sgptr->next_time = tmval;
-    sleep_time       = sgptr->rate >> SLEEPRATE; /* sleep in 1/4 rate steps */
+    guint sleep_time = sgptr->rate >> SLEEPRATE; /* sleep in 1/4 rate steps */
 
-//    sendcnt = ( 1 << SLEEPRATE ) - 1;
-    b_run = TRUE;
+    gboolean b_run = TRUE;
     while ( abort_request == 0 && b_run ) {
         /* get seconds and useconds for timing */
         if ( gettimeofday( &tmval, NULL ) != 0 ) {
             perror( "sq_run_task gettimeofday: " );
         }
 
-        b_timeout = ( tmval.tv_sec > sgptr->next_time.tv_sec ) ||
-                    ( tmval.tv_sec == sgptr->next_time.tv_sec &&
-                      tmval.tv_usec > sgptr->next_time.tv_usec );
+        gboolean b_timeout = ( tmval.tv_sec > sgptr->next_time.tv_sec ) ||
+                             ( tmval.tv_sec == sgptr->next_time.tv_sec &&
+                               tmval.tv_usec > sgptr->next_time.tv_usec );
 
         /* clear flags that will be set inside loop */
         b_run = FALSE;
-        for ( stbitr = sgptr->stbbegin; stbitr <= sgptr->stbend; stbitr++ ) {
+        stb_t* stbitr = sgptr->stbbegin;
+        for ( ; stbitr <= stbend; stbitr++ ) {
             /* run the machine */
             stb_FSM( stbitr, &sourceId, sgptr->srcidmin, sgptr->srcidmax );
 
             /* flag any stbs that are still running */
             b_run |= ( stbitr->state != e_state_done );
 
-            b_gatedmsg = stbitr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
-                         stbitr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
+            gboolean b_gatedmsg = stbitr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
+                                  stbitr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
 
             /* is stbptr sending a gated message */
+            gboolean b_send;
             b_send = stbitr->state == e_state_tx && stbitr == stbptr &&
                      b_timeout && b_gatedmsg;
 
@@ -298,8 +264,8 @@ sg_run_task( void* ptr ) {
         }
 
         /* calculate next sleep period */
-        i =  ( sgptr->next_time.tv_sec - tmval.tv_sec ) * SECOND_UTIME +
-             ( sgptr->next_time.tv_usec - tmval.tv_usec );
+        int i =  ( sgptr->next_time.tv_sec - tmval.tv_sec ) * SECOND_UTIME +
+                 ( sgptr->next_time.tv_usec - tmval.tv_usec );
 
         if ( i > sleep_time ) {
             i = sleep_time;
@@ -317,7 +283,8 @@ sg_run_task( void* ptr ) {
     if ( sgptr->flags & STBDUMP ) {
         printf( "service group %u stb dump\n", sgptr->servicegroup );
 
-        for ( stbptr = sgptr->stbbegin; stbptr <= sgptr->stbend; stbptr++ ) {
+        stbptr = sgptr->stbbegin;
+        for ( ; stbptr <= stbend; stbptr++ ) {
             print_stb( stbptr );
         }
 

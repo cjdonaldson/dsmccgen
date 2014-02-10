@@ -17,7 +17,7 @@ stb_t* stbs;
 
 char*  version = "2014.02.0";
 
-#define MAX_SGS 200
+#define MAX_SGS 65536
 gint           sgcount;
 servicegroup_t sgs[MAX_SGS];
 
@@ -118,19 +118,12 @@ process_files( gchar* fileptr ) {
 
 gboolean
 init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
-    gint     i;
-    gint     j;
-    gint     len;
-    guint32* p_i;
-    gint     opt_parm;
-
-
     sgs[sgndx].stbbase      = 1;
     sgs[sgndx].stbcnt       = 1;
 
     sgs[sgndx].holdoff      = 250000; /* usec */
     sgs[sgndx].rate         = 250000; /* usec */
-    sgs[sgndx].dwell        = 0; /* sec */
+    sgs[sgndx].dwell        = 0;      /* sec */
 
     sgs[sgndx].srvrptr      = NULL;
     sgs[sgndx].servicegroup = 0;
@@ -141,11 +134,12 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
     sgs[sgndx].flags        = 0;
 
     printf( "   " );
+    guint i;
     for ( i = 0; i < argcnt; ++i ) {
         printf( " %s", argstrs[i] );
     }
 
-    opt_parm = 2;
+    gint opt_parm = 2;
     for ( i = 1; i < argcnt; ++i ) {
         //printf( "ndx.i = %i.%i %s\n", sgndx, i, argstrs[i] );
         if ( strncmp( argstrs[i],  "-f", 2 ) == 0 || strncmp( argstrs[i],  "--file", 6 ) == 0 ) {
@@ -245,8 +239,9 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
         else if ( sgs[sgndx].srvrptr == NULL ) {
             /* here if no options and server is not yet spec'd */
             /* resolve the server reference or add a new server reference */
-            len = strlen( argstrs[i] );
-            for ( j = 0; j < servercount; ++j ) {
+            gint len = strlen( argstrs[i] );
+            gint j   = 0;
+            for ( ; j < servercount; ++j ) {
                 if ( strncmp( argstrs[i], servers[j].svmip , len ) == 0 ) {
                     break;
                 }
@@ -316,12 +311,10 @@ main( gint argcnt, char* argstrs[] ) {
     gint   j;
     gint   exitcode;
 
-    gchar* appname;
-
-    appname       = argstrs[0];
-    servercount   = 0;
-    sgcount       = 0;
-    abort_request = 0;
+    gchar* appname = argstrs[0];
+    servercount    = 0;
+    sgcount        = 0;
+    abort_request  = 0;
 
     /* register functions to capture ^c and exit */
     signal( SIGINT, sig_int );
@@ -341,7 +334,7 @@ main( gint argcnt, char* argstrs[] ) {
     for ( i = 0; i < sgcount; ++i ) {
         if ( !sg_init( &sgs[i], FALSE ) ) {
             printf( "service group init failed\n" );
-            exit ( 1 );
+            return 1;
         }
     }
 
