@@ -16,7 +16,7 @@ stb_t  stb;
 
 stb_t* stbs;
 
-char*  version = "2.0.2a";
+char*  version = "2014.02.0";
 
 #define MAX_SGS 200
 gint           sgcount;
@@ -31,7 +31,7 @@ usage( gchar* appname ) {
     printf( "    sourceId becomes optional and not used if -s or --srcids options are specified.\n" );
     printf( "    options:\n" );
     printf( "      -b  | --stbbase number        the base address for a range of settops\n" );
-    printf( "                                    utilizes the second mac octet, 1 to 255 - default 1.\n" );
+    printf( "                                    utilizes the second mac octet, 1 to 65535 - default 1.\n" );
     printf( "      -c  | --stbcnt number         the number of settops to simulate\n" );
     printf( "                                    utilizes last 4 mac octets; default 1.\n" );
 //    printf( "      -d  | --dwell number          the tuned channel dwell time milliseconds - default 250.\n" );

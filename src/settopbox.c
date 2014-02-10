@@ -46,7 +46,8 @@ stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr, guint stb_base, guin
 
     /* mac addr 6 + tuner# 1 + reseved 3 */
     memset( stbptr->macaddr, '\0', sizeof stbptr->macaddr );
-    stbptr->macaddr[1]        = stb_base;
+    stbptr->macaddr[1]        = ( stb_base >> 8 & 0xFF );
+    stbptr->macaddr[2]        = ( stb_base & 0xFF );
     stbptr->macaddr[4]        = ( stb_number >> 8 & 0xFF );
     stbptr->macaddr[5]        = ( stb_number & 0xFF );
 
