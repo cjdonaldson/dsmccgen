@@ -9,8 +9,7 @@ gchar vsbuff[120];
 
 gchar*
 val_to_string( guint32 value, const value_string vs[] ) {
-    int i;
-    i = 0;
+    int i = 0;
     while ( vs[i].strptr != NULL ) {
         if ( value == vs[i].value ) {
             return vs[i].strptr;
@@ -18,7 +17,7 @@ val_to_string( guint32 value, const value_string vs[] ) {
         ++i;
     }
 
-    snprintf( vsbuff, 200, "Unknown value %i (%X)", value, value );
+    snprintf( vsbuff, sizeof vsbuff, "Unknown value %i (%X)", value, value );
     return vsbuff;
 }
 

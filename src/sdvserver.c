@@ -7,12 +7,11 @@
 #define POLLTIMEOUT 0          /* x msec */
 #define POLLFLAGS POLLIN
 
-
 gboolean
 set_ip( server_t* svrptr, gchar* ipptr ) {
     gint len;
 
-    len = strlen( ipptr );
+    len           = strlen( ipptr );
     svrptr->svmip = malloc( len + 1 );
 
     if ( svrptr->svmip == 0 ) {
@@ -61,13 +60,13 @@ init_channel( server_t* svrptr ) {
         return FALSE;
     }
 
-    svrptr->src_addr.sin_family = AF_INET;            /* host byte order */
-    svrptr->src_addr.sin_port = htons( MYPORT );      /* short, network byte order */
+    svrptr->src_addr.sin_family      = AF_INET;            /* host byte order */
+    svrptr->src_addr.sin_port        = htons( MYPORT );      /* short, network byte order */
     svrptr->src_addr.sin_addr.s_addr = inet_addr( MYADDR );
     memset( svrptr->src_addr.sin_zero, '\0', sizeof svrptr->src_addr.sin_zero );
 
-    svrptr->dst_addr.sin_family = AF_INET;            /* host byte order */
-    svrptr->dst_addr.sin_port = htons( DSTPORT );      /* short, network byte order */
+    svrptr->dst_addr.sin_family      = AF_INET;            /* host byte order */
+    svrptr->dst_addr.sin_port        = htons( DSTPORT );      /* short, network byte order */
     memcpy( &svrptr->dst_addr.sin_addr.s_addr, host->h_addr, host->h_length );
     memset( svrptr->dst_addr.sin_zero, '\0', sizeof svrptr->dst_addr.sin_zero );
 
@@ -126,11 +125,9 @@ is_data( server_t* svrptr ) {
         return FALSE;
     }
 
-    ufds[0].fd = svrptr->sockfd;
+    ufds[0].fd     = svrptr->sockfd;
     ufds[0].events = POLLFLAGS;
-
-    rv = poll( ufds, 1, POLLTIMEOUT );
-
+    rv             = poll( ufds, 1, POLLTIMEOUT );
     if ( rv == -1 ) {
         perror( "is_data" );    /* error occurred in poll() */
     }
@@ -185,7 +182,7 @@ close_channel( server_t* svrptr ) {
     if ( svrptr->socket_initd ) {
         printf( "closing server: %s\n", svrptr->svmip );
         close( &svrptr->sockfd );
-        svrptr->sockfd = 0;
+        svrptr->sockfd       = 0;
         svrptr->socket_initd = FALSE;
 
         free( svrptr->svmip );

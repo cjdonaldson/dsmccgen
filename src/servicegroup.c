@@ -6,7 +6,6 @@
 
 static pthread_mutex_t sg_mutex  = PTHREAD_MUTEX_INITIALIZER;
 
-
 stb_t stb;
 
 static gboolean b_debug = FALSE;
@@ -61,7 +60,7 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
 
         sgptr->stbend = &( sgptr->stbbegin[ sgptr->stbcnt - 1 ] );
 
-        dwell_time_period.tv_sec = sgptr->dwell;
+        dwell_time_period.tv_sec  = sgptr->dwell;
         dwell_time_period.tv_usec = 0;
 
         stbptr = sgptr->stbbegin;
@@ -87,10 +86,8 @@ void
 print_log( struct timeval* tvptr, stb_t* stbptr ) {
     gchar timestr[60];
 
-    strftime( timestr, sizeof timestr, "%a %d%b%Y %H:%M:%S",
-              localtime( &tvptr->tv_sec ) );
-    printf( "%s.%03i   sg%-5i ", timestr, tvptr->tv_usec / 1000,
-              stbptr->servicegroup );
+    strftime( timestr, sizeof timestr, "%a %d%b%Y %H:%M:%S", localtime( &tvptr->tv_sec ) );
+    printf( "%s.%03i   sg%-5i ", timestr, tvptr->tv_usec / 1000, stbptr->servicegroup );
 } /* print_log */
 
 
@@ -195,16 +192,16 @@ sg_run_task( void* ptr ) {
     guint sourceId;
     guint32 i;
 
-    struct timeval tmval; /* use system time to minimize timing jitter */
+    struct timeval  tmval; /* use system time to minimize timing jitter */
 //    guint this_time;
-    guint sleep_time;
+    guint           sleep_time;
 
-    gboolean b_run;
-    gboolean b_send;
+    gboolean        b_run;
+    gboolean        b_send;
 
 //    guint sendcnt;
 
-    gchar* buff;
+    gchar*          buff;
 
     servicegroup_t* sgptr;
     server_t*       svrptr;
@@ -215,8 +212,8 @@ sg_run_task( void* ptr ) {
     gboolean        b_timeout;
 
     /* some pointers to help with code clarity */
-    sgptr  = ( servicegroup_t* )ptr;
-    svrptr = sgptr->srvrptr;
+    sgptr    = ( servicegroup_t* )ptr;
+    svrptr   = sgptr->srvrptr;
 
     /* set arting source id */
     sourceId = sgptr->srcidmin;
@@ -239,8 +236,7 @@ sg_run_task( void* ptr ) {
 
     /* unext_time is an effort to minimize timing jitter */
     sgptr->next_time = tmval;
-
-    sleep_time = sgptr->rate >> SLEEPRATE; /* sleep in 1/4 rate steps */
+    sleep_time       = sgptr->rate >> SLEEPRATE; /* sleep in 1/4 rate steps */
 
 //    sendcnt = ( 1 << SLEEPRATE ) - 1;
     b_run = TRUE;
@@ -344,4 +340,3 @@ sg_free( servicegroup_t* sgptr ) {
     printf( "freeing servcie group %i\n", sgptr->servicegroup );
     free( sgptr->stbbegin );
 }
-

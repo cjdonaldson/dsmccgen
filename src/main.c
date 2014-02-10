@@ -13,7 +13,6 @@ extern int abort_request;
 #define NOSRCID 999999
 
 stb_t  stb;
-
 stb_t* stbs;
 
 char*  version = "2014.02.0";
@@ -59,14 +58,14 @@ usage( gchar* appname ) {
 
 gboolean
 process_files( gchar* fileptr ) {
-#define PROCESS_BUFF_SIZE 200
-    gint fd;
-    gchar buff[ PROCESS_BUFF_SIZE ];
+#   define PROCESS_BUFF_SIZE 200
+    gint   fd;
+    gchar  buff[ PROCESS_BUFF_SIZE ];
     gchar* argv[ PROCESS_BUFF_SIZE ];
-    gint  argc;
-    gint  rdcount;
+    gint   argc;
+    gint   rdcount;
 
-    gint i;
+    gint   i;
 
     gchar* chrptr;
 
@@ -85,7 +84,7 @@ process_files( gchar* fileptr ) {
 
     do {
         /* clear buff for clean - NULL - testing */
-        memset( buff, 0, PROCESS_BUFF_SIZE );
+        memset( buff, 0, sizeof buff );
 
         /* prep the pointer to 1 less due to pre-inc */
         /* read one line at a time or the EOF */
@@ -119,10 +118,12 @@ process_files( gchar* fileptr ) {
 
 gboolean
 init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
-    gint     i; 
-    gint     j; 
+    gint     i;
+    gint     j;
     gint     len;
     guint32* p_i;
+    gint     opt_parm;
+
 
     sgs[sgndx].stbbase      = 1;
     sgs[sgndx].stbcnt       = 1;
@@ -139,10 +140,6 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
 
     sgs[sgndx].flags        = 0;
 
-    gint opt_parm;
-
-
-
     printf( "   " );
     for ( i = 0; i < argcnt; ++i ) {
         printf( " %s", argstrs[i] );
@@ -153,15 +150,13 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
         //printf( "ndx.i = %i.%i %s\n", sgndx, i, argstrs[i] );
         if ( strncmp( argstrs[i],  "-f", 2 ) == 0 || strncmp( argstrs[i],  "--file", 6 ) == 0 ) {
             /* here if using the file configuration option */
-            {
-                /* here if need to process a config file */
-                if ( !process_files( argstrs[ opt_parm ] ) ) {
-                    printf( "file error\n" );
-                    return FALSE;
-                }
-                ++i;
-                opt_parm += 2;
+            /* here if need to process a config file */
+            if ( !process_files( argstrs[ opt_parm ] ) ) {
+                printf( "file error\n" );
+                return FALSE;
             }
+            ++i;
+            opt_parm += 2;
         }
         else if ( strncmp( argstrs[i], "-b", 2 ) == 0 || strncmp( argstrs[i], "--stbbase", 9 ) == 0 ) {
             if ( i + 1 < argcnt ) {
@@ -262,10 +257,8 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
                 if ( !set_ip( &servers[j], argstrs[i] ) ) {
                     return FALSE;
                 }
-
                 ++servercount;
             }
-
             sgs[sgndx].srvrptr = &servers[j];
         }
         else if ( sgs[sgndx].servicegroup == 0 ) {
@@ -273,11 +266,9 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
             sgs[sgndx].servicegroup = atoi( argstrs[i] );
 
             if ( sgs[sgndx].servicegroup == 0 ) {
-                printf( "service group is illegal value (%i)\n",
-                          sgs[sgndx].servicegroup );
+                printf( "service group is illegal value (%i)\n", sgs[sgndx].servicegroup );
                 return FALSE;
             }
-
             ++sgcount;
         }
         else if ( sgs[sgndx].srcidmin == NOSRCID ) {
@@ -294,7 +285,6 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
         return FALSE;
     }
     printf( "  validated\n" );
-
 
     return TRUE;
 }
@@ -322,17 +312,15 @@ cleanup( ) {
 
 int
 main( gint argcnt, char* argstrs[] ) {
-    gint i;
-    gint j;
-    gint exitcode;
+    gint   i;
+    gint   j;
+    gint   exitcode;
 
     gchar* appname;
 
-    appname = argstrs[0];
-
-    servercount = 0;
-    sgcount = 0;
-
+    appname       = argstrs[0];
+    servercount   = 0;
+    sgcount       = 0;
     abort_request = 0;
 
     /* register functions to capture ^c and exit */

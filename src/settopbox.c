@@ -74,7 +74,7 @@ guint
 snprint_log( char* cbuffptr, struct timeval* tmvalptr, stb_t* stbptr ) {
     guint i;
 
-    i = strftime( cbuffptr, 500, "%a %d%b%Y %H:%M:%S", localtime( &tmvalptr->tv_sec ) );
+    i  = strftime( cbuffptr, 500, "%a %d%b%Y %H:%M:%S", localtime( &tmvalptr->tv_sec ) );
     i += snprintf( cbuffptr + i, 500 - i, ".%03i ", tmvalptr->tv_usec / 1000 );
 
     return i;
@@ -83,7 +83,7 @@ snprint_log( char* cbuffptr, struct timeval* tmvalptr, stb_t* stbptr ) {
 
 gboolean
 stb_dsmcc_out( stb_t* stbptr ) {
-    dsmcc_t* dsmccptr;
+    dsmcc_t*      dsmccptr;
 
     /* static variable only because we will be here often */
     static gint   msglen;
@@ -111,9 +111,9 @@ stb_dsmcc_out( stb_t* stbptr ) {
         /* here if first time */
         /* set the default values for root structure */
         dsmccptr->hdr.descriminator  = DSMCC_DESCRIMINATOR;
-        dsmccptr->hdr.type = DSMCC_TYPE_SDV;
-        dsmccptr->hdr.res  = 0xFF;
-        dsmccptr->hdr.adaptLen  = 0x00;
+        dsmccptr->hdr.type           = DSMCC_TYPE_SDV;
+        dsmccptr->hdr.res            = 0xFF;
+        dsmccptr->hdr.adaptLen       = 0x00;
 
         /* not part of hdr but common to all payloads */
         memcpy( dsmccptr->sdb_init_request.sessId, stbptr->macaddr, sizeof stbptr->macaddr );
@@ -134,10 +134,10 @@ stb_dsmcc_out( stb_t* stbptr ) {
         if ( stbptr->flags & VERBOSEOUT ) {
             /* display some stuff */
             printf( "%s  i>: %s  %s  sg:%i\n",
-                      cbuff,
-                      sessionId_to_string( stbptr->macaddr ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      stbptr->servicegroup );
+                    cbuff,
+                    sessionId_to_string( stbptr->macaddr ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    stbptr->servicegroup );
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST ) {
@@ -156,10 +156,10 @@ stb_dsmcc_out( stb_t* stbptr ) {
         if ( stbptr->flags & VERBOSEOUT ) {
             /* display some stuff */
             printf( "%s  s>: %s  %s  src:%i  sg:%i\n",
-                      cbuff,
-                      sessionId_to_string( stbptr->macaddr ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      stbptr->sourceId, stbptr->servicegroup );
+                    cbuff,
+                    sessionId_to_string( stbptr->macaddr ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    stbptr->sourceId, stbptr->servicegroup );
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE ) {
@@ -168,7 +168,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
 
         /* payload for select response */
         dsmccptr->sdb_select_response.response = htons( rspOk );
-        dsmccptr->sdb_select_response.dataLen = 0;  /* set to 0 */
+        dsmccptr->sdb_select_response.dataLen  = 0;  /* set to 0 */
 
         b_display = stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL )
                     || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
@@ -178,10 +178,10 @@ stb_dsmcc_out( stb_t* stbptr ) {
             i = ntohs( dsmccptr->sdb_select_response.response );
 
             printf( "%s  r>: %s  %s  %s\n",
-                      cbuff,
-                      sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      val_to_string( i, dsmcc_selectresponse_names ) );
+                    cbuff,
+                    sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    val_to_string( i, dsmcc_selectresponse_names ) );
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_ACTIVITY_REPORT ) {
@@ -196,9 +196,9 @@ stb_dsmcc_out( stb_t* stbptr ) {
         if ( stbptr->flags & VERBOSEIN ) {
             /* display some stuff */
             printf( "%s  a<: %s %s\n",
-                      cbuff,
-                      sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ) );
+                    cbuff,
+                    sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ) );
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_QUERY_CONFIRM ) {
@@ -217,16 +217,16 @@ stb_dsmcc_out( stb_t* stbptr ) {
         if ( stbptr->flags & ( VERBOSEOUT | VERBOSEERROR ) ) {
             /* display some stuff */
             printf( "%s  q<: %s %s\n",
-                      cbuff,
-                      sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ) );
+                    cbuff,
+                    sessionId_to_string( dsmccptr->sdb_init_request.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ) );
         }
     }
     else {
         /* display some stuff */
         printf( "\n\n\n\n ***>: %s  sending nothing. Unknown MsgId: %04X\n",
-                  sessionId_to_string( stbptr->macaddr ),
-                  ntohs( stbptr->msgId ) );
+                sessionId_to_string( stbptr->macaddr ),
+                ntohs( stbptr->msgId ) );
 
         printf( "    " );
         print_dsmcc( ( gchar* )dsmccptr, sizeof * dsmccptr );
@@ -244,7 +244,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     dsmccptr->hdr.transxId  = htonl( ( stbptr->transxId )++ );
 
     /* calculate message length*/
-    stbptr->dsmcc_len = sizeof( struct st_dsmcc_hdr ) + ntohs( dsmccptr->hdr.msgLen );
+    stbptr->dsmcc_len       = sizeof( struct st_dsmcc_hdr ) + ntohs( dsmccptr->hdr.msgLen );
 
     /* send the message and then wait for response */
     i = send_data( stbptr->srvrptr, ( gchar* ) &stbptr->dsmcc, stbptr->dsmcc_len );
@@ -264,7 +264,6 @@ stb_dsmcc_out( stb_t* stbptr ) {
             stbptr->time_out.tv_usec -= SECOND_UTIME;
         }
 
-
         if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST ) {
             /* only dwell on channel requests */
             stbptr->dwell_time.tv_sec  = tmval.tv_sec + stbptr->dwell_time_period.tv_sec;
@@ -283,28 +282,26 @@ stb_dsmcc_out( stb_t* stbptr ) {
     return TRUE;
 } /* stb_dsmcc_out */
 
-
 gint
 stbcmp( gchar* macptr1, gchar* macptr2 ) {
     /* really only need look at macaddr[1:5] bytes */
     return memcmp( macptr1 + 1, macptr2 + 1, 5 );
 }
 
-
 gboolean
 stb_dsmcc_in( stb_t* stbptr ) {
-    dsmcc_t* dsmccptr;
-    guint msglen;
+    dsmcc_t*       dsmccptr;
+    guint          msglen;
 
-    static gint i;
-    static gchar cbuff[500];
+    static gint    i;
+    static gchar   cbuff[500];
 
-    gboolean b_display;
+    gboolean       b_display;
 
     struct timeval tmval;
 
     /* setup a server_t ptr to make coding readable */
-    server_t* srvrptr = stbptr->srvrptr;
+    server_t*      srvrptr = stbptr->srvrptr;
 
     /* check socket for data; done if none */
     if ( !is_data( srvrptr ) ) {
@@ -318,7 +315,6 @@ stb_dsmcc_in( stb_t* stbptr ) {
         /* not in the group, so go no farther */
         return FALSE;
     }
-
 
     recv_data( srvrptr, ( gchar* ) &stbptr->dsmcc , sizeof stbptr->dsmcc );
 
@@ -338,7 +334,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
     stbptr->state = e_state_next;
 
     if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_CONFIRM ) {
-        i = ntohs( dsmccptr->sdb_init_confirm.response );
+        i         = ntohs( dsmccptr->sdb_init_confirm.response );
 
         b_display = stbptr->flags & VERBOSEIN
                     || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
@@ -353,9 +349,9 @@ stb_dsmcc_in( stb_t* stbptr ) {
             }
 
             printf( "i<: %s  %s  %s\n" ,
-                      sessionId_to_string( dsmccptr->sdb_init_confirm.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      val_to_string( i, dsmcc_selectresponse_names ) );
+                    sessionId_to_string( dsmccptr->sdb_init_confirm.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    val_to_string( i, dsmcc_selectresponse_names ) );
 
             /*
                     if ( msglen < dsmccptr->hdr.msgLen )
@@ -372,7 +368,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
         stbptr->frequency  = ntohl( dsmccptr->sdb_select_confirm.frequency );
         stbptr->modulation = dsmccptr->sdb_select_confirm.modulation;
         stbptr->mpegnumber = ntohs( dsmccptr->sdb_select_confirm.programNumber );
-        i = ntohs( dsmccptr->sdb_select_confirm.response );
+        i                  = ntohs( dsmccptr->sdb_select_confirm.response );
 
         b_display = stbptr->flags & VERBOSEIN
                     || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
@@ -387,13 +383,13 @@ stb_dsmcc_in( stb_t* stbptr ) {
             }
 
             printf( "s<: %s  %s  %s  src:%i  tune:%i-%s-%i\n",
-                      sessionId_to_string( dsmccptr->sdb_select_confirm.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      val_to_string( i, dsmcc_selectresponse_names ),
-                      stbptr->sourceId,
-                      stbptr->frequency,
-                      val_to_string( stbptr->modulation, dsmcc_modfmt_names ),
-                      stbptr->mpegnumber );
+                    sessionId_to_string( dsmccptr->sdb_select_confirm.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    val_to_string( i, dsmcc_selectresponse_names ),
+                    stbptr->sourceId,
+                    stbptr->frequency,
+                    val_to_string( stbptr->modulation, dsmcc_modfmt_names ),
+                    stbptr->mpegnumber );
 
             /*
                     if ( sizeof dsmccptr->sdb_select_confirm < dsmccptr->hdr.msgLen )
@@ -416,10 +412,10 @@ stb_dsmcc_in( stb_t* stbptr ) {
         stbptr->modulation = dsmccptr->sdb_select_indication.modulation;
         stbptr->mpegnumber = ntohs( dsmccptr->sdb_select_indication.programNumber );
 
-        i = ntohs( dsmccptr->sdb_select_indication.reason );
+        i                  = ntohs( dsmccptr->sdb_select_indication.reason );
 
-        b_display = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL )
-                    || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        b_display          = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL )
+                             || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
 
         if ( b_display ) {
             /* display some stuff */
@@ -431,13 +427,13 @@ stb_dsmcc_in( stb_t* stbptr ) {
             }
 
             printf( "n<: %s  %s  %s  src:%i  tune:%i-%s-%i\n",
-                      sessionId_to_string( dsmccptr->sdb_select_indication.sessId ),
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      val_to_string( i, dsmcc_selectreason_names ),
-                      stbptr->sourceId,
-                      stbptr->frequency,
-                      val_to_string( stbptr->modulation, dsmcc_modfmt_names ),
-                      stbptr->mpegnumber );
+                    sessionId_to_string( dsmccptr->sdb_select_indication.sessId ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    val_to_string( i, dsmcc_selectreason_names ),
+                    stbptr->sourceId,
+                    stbptr->frequency,
+                    val_to_string( stbptr->modulation, dsmcc_modfmt_names ),
+                    stbptr->mpegnumber );
 
             /*
                     if ( msglen < dsmccptr->hdr.msgLen )
@@ -458,16 +454,16 @@ stb_dsmcc_in( stb_t* stbptr ) {
         if ( stbptr->flags & VERBOSEIN ) {
             /* display some stuff */
             printf( "%s  q<: %s %s  query request\n", cbuff,
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      sessionId_to_string( dsmccptr->sdb_query_request.sessId ) );
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    sessionId_to_string( dsmccptr->sdb_query_request.sessId ) );
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_EVENT_INDICATION ) {
         if ( stbptr->flags & ( VERBOSEIN | VERBOSEFAIL ) ) {
             /* display some stuff */
             printf( "%s  e<: %s %s  event indication\n", cbuff,
-                      val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-                      sessionId_to_string( dsmccptr->sdb_init_request.sessId ) );
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+                    sessionId_to_string( dsmccptr->sdb_init_request.sessId ) );
         }
     }
     else {
@@ -498,17 +494,17 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
      *          EventI   -------->  EventRsp
      *                    (intrnl)  ActRpt
      */
-    gboolean b_display;
-    gboolean b_timeout;
-    gboolean b_dwelling;
-    gboolean b_dbgabnevnt;
+    gboolean       b_display;
+    gboolean       b_timeout;
+    gboolean       b_dwelling;
+    gboolean       b_dbgabnevnt;
 
-    guint  oldstate;
-    guint  oldmsg;
+    guint          oldstate;
+    guint          oldmsg;
 
     struct timeval tmval;
 
-    gchar* fsmdbgtxtptr;
+    gchar*         fsmdbgtxtptr;
 
     /* get seconds and useconds for timing */
     if ( gettimeofday( &tmval, NULL ) != 0 ) {
@@ -518,15 +514,15 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     b_dbgabnevnt = FALSE;
     fsmdbgtxtptr = " FSM ";
 
-    oldstate = stbptr->state;
-    oldmsg = stbptr->msgId;
+    oldstate     = stbptr->state;
+    oldmsg       = stbptr->msgId;
 
-    b_dwelling =  ( stbptr->state == e_state_next );
+    b_dwelling  = ( stbptr->state == e_state_next );
     b_dwelling &= ( tmval.tv_sec < stbptr->dwell_time.tv_sec ) ||
                   ( tmval.tv_sec == stbptr->dwell_time.tv_sec &&
                     tmval.tv_usec < stbptr->dwell_time.tv_usec );
 
-    b_timeout =  ( stbptr->state == e_state_wait );
+    b_timeout  = ( stbptr->state == e_state_wait );
     b_timeout &= ( tmval.tv_sec > stbptr->time_out.tv_sec ) ||
                  ( tmval.tv_sec == stbptr->time_out.tv_sec &&
                    tmval.tv_usec > stbptr->time_out.tv_usec );
@@ -536,9 +532,9 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_INDICATION ) {
         /* here if svr sent revised tune info */
-        stbptr->msgId = DSMCC_MSGID_SDV_SELECT_RESPONSE;
+        stbptr->msgId       = DSMCC_MSGID_SDV_SELECT_RESPONSE;
         stbptr->tunefailcnt = 0;
-        stbptr->state = e_state_tx;
+        stbptr->state       = e_state_tx;
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE ) {
         /* here if stb responded revised tune info */
@@ -548,7 +544,7 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         }
         else {
             stbptr->tunefailcnt = 0;
-            stbptr->state = e_state_next;
+            stbptr->state       = e_state_next;
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_QUERY_REQUEST ) {
@@ -578,8 +574,8 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_CONFIRM ) {
         /* here if stb just init'd, so go right to program select */
-        stbptr->msgId = DSMCC_MSGID_SDV_SELECT_REQUEST;
-        stbptr->state = e_state_next;
+        stbptr->msgId    = DSMCC_MSGID_SDV_SELECT_REQUEST;
+        stbptr->state    = e_state_next;
         stbptr->sourceId = 0;
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_CONFIRM  ) {
@@ -598,15 +594,15 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     }
     else if ( stbptr->state == e_state_wait && stbptr->sourceId == 0 ) {
         /* here if stb sent a sign off msg; srcid=0 and waiting */
-        fsmdbgtxtptr = " FSM signoff ";
+        fsmdbgtxtptr  = " FSM signoff ";
 
-        b_dbgabnevnt = TRUE;
+        b_dbgabnevnt  = TRUE;
         stbptr->state = e_state_done;
     }
     else if ( b_timeout ) {
         /* here if stb spent too much time NOT tx'g */
-        fsmdbgtxtptr = " FSM timeout ";
-        b_dbgabnevnt = TRUE;
+        fsmdbgtxtptr  = " FSM timeout ";
+        b_dbgabnevnt  = TRUE;
         stbptr->state = e_state_next;
 
         // disable tune failure and force to next source_id
@@ -639,7 +635,7 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         else {
             /* ready to move on */
             stbptr->sourceId = *sourceidptr;
-            stbptr->state = e_state_tx;
+            stbptr->state    = e_state_tx;
 
             /* set next channel for next stb */
             if ( ++( *sourceidptr ) > sourceid_max ) {
@@ -651,18 +647,18 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         /* here if no other events triggered */
         fsmdbgtxtptr = "FSM invalid msgid";
         printf( " \n\n\n\n STB %s is invalid msgid = %04X; forcing to DSMCC_MSGID_SDV_SELECT_REQUEST\n\n\n",
-                  sessionId_to_string( stbptr->macaddr ), stbptr->msgId );
+                sessionId_to_string( stbptr->macaddr ), stbptr->msgId );
 
         stbptr->state = e_state_done;
     }
 
-    b_display = stbptr->flags & DBGFSMFULL;
-    b_display |= ( stbptr->flags & DBGFSMABN ) &&
+    b_display  =      stbptr->flags & DBGFSMFULL;
+    b_display |= (    stbptr->flags & DBGFSMABN ) &&
                  (    stbptr->msgId == DSMCC_MSGID_SDV_SELECT_INDICATION
-                      || stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE
-                      || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_INDICATION
-                      || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_RESPONSE
-                      || b_dbgabnevnt
+                   || stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE
+                   || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_INDICATION
+                   || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_RESPONSE
+                   || b_dbgabnevnt
                  );
 
     if ( b_display && stbptr->state != oldstate && stbptr->msgId != oldmsg ) {
@@ -675,8 +671,6 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
 //        stb_set_timeout( stbptr, &tmval );
 //    }
 } /* stb_FSM */
-
-
 
 gchar*
 sessionId_to_string( guint8 sessionId[] ) {
@@ -711,8 +705,8 @@ const value_string debug_stbstate_names[] = {
 void
 print_stb( stb_t* stbptr ) {
     struct timeval tmval;
-    guint time;
-    gint i;
+    guint          time;
+    gint           i;
 
     /* get seconds and useconds for timing */
     if ( gettimeofday( &tmval, NULL ) != 0 ) {
@@ -734,11 +728,11 @@ print_stb( stb_t* stbptr ) {
            ( stbptr->time_out.tv_usec - tmval.tv_usec );
 
     printf( "%s sg%i tx:%i delta:%+i state:%s %s srcid:%i\n",
-              sessionId_to_string( stbptr->macaddr ),
-              stbptr->servicegroup, stbptr->transxId,
-              time,
-              val_to_string( stbptr->state, debug_stbstate_names ),
-              val_to_string( stbptr->msgId, dsmcc_msgid_names ),
-              stbptr->sourceId );
+            sessionId_to_string( stbptr->macaddr ),
+            stbptr->servicegroup, stbptr->transxId,
+            time,
+            val_to_string( stbptr->state, debug_stbstate_names ),
+            val_to_string( stbptr->msgId, dsmcc_msgid_names ),
+            stbptr->sourceId );
 
 } /* print_stb */
