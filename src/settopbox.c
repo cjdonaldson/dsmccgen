@@ -101,7 +101,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     static char    cbuff[500];
     snprint_log( cbuff, sizeof cbuff, &tmval, stbptr );
 
-    if ( dsmccptr->hdr.descriminator != DSMCC_DESCRIMINATOR ) {
+    //if ( dsmccptr->hdr.descriminator != DSMCC_DESCRIMINATOR ) {
         /* here if first time */
         /* set the default values for root structure */
         struct st_dsmcc_hdr hdr = dsmccptr->hdr;
@@ -112,7 +112,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
 
         /* not part of hdr but common to all payloads */
         memcpy( dsmccptr->sdb_init_request.sessId, stbptr->macaddr, sizeof stbptr->macaddr );
-    }
+    //}
 
     if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ) {
         /* take care of header */
