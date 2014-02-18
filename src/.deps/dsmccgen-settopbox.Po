@@ -1,291 +1,167 @@
-dsmccgen-settopbox.o dsmccgen-settopbox.o: settopbox.c \
-  /usr/include/sys/timeb.h /usr/include/features.h \
-  /usr/include/sys/cdefs.h /usr/include/bits/wordsize.h \
-  /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
-  /usr/include/time.h /usr/include/bits/types.h \
-  /usr/include/bits/typesizes.h \
-  /usr/lib/gcc/i386-redhat-linux/4.1.2/include/stddef.h \
-  /usr/include/bits/time.h settopbox.h /usr/include/glib-2.0/glib.h \
-  /usr/include/glib-2.0/glib/galloca.h \
-  /usr/include/glib-2.0/glib/gtypes.h \
-  /usr/lib/glib-2.0/include/glibconfig.h \
-  /usr/include/glib-2.0/glib/gmacros.h \
-  /usr/lib/gcc/i386-redhat-linux/4.1.2/include/limits.h \
-  /usr/lib/gcc/i386-redhat-linux/4.1.2/include/syslimits.h \
-  /usr/include/limits.h /usr/include/bits/posix1_lim.h \
-  /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
-  /usr/include/bits/posix2_lim.h \
-  /usr/lib/gcc/i386-redhat-linux/4.1.2/include/float.h \
-  /usr/include/glib-2.0/glib/garray.h \
-  /usr/include/glib-2.0/glib/gasyncqueue.h \
-  /usr/include/glib-2.0/glib/gthread.h \
-  /usr/include/glib-2.0/glib/gerror.h /usr/include/glib-2.0/glib/gquark.h \
-  /usr/include/glib-2.0/glib/gatomic.h \
-  /usr/include/glib-2.0/glib/gbacktrace.h \
-  /usr/include/glib-2.0/glib/gbase64.h \
-  /usr/include/glib-2.0/glib/gbookmarkfile.h \
-  /usr/include/glib-2.0/glib/gcache.h /usr/include/glib-2.0/glib/glist.h \
-  /usr/include/glib-2.0/glib/gmem.h /usr/include/glib-2.0/glib/gslice.h \
-  /usr/include/glib-2.0/glib/gcompletion.h \
-  /usr/include/glib-2.0/glib/gconvert.h \
-  /usr/include/glib-2.0/glib/gdataset.h \
-  /usr/include/glib-2.0/glib/gdate.h /usr/include/glib-2.0/glib/gdir.h \
-  /usr/include/glib-2.0/glib/gfileutils.h \
-  /usr/include/glib-2.0/glib/ghash.h /usr/include/glib-2.0/glib/ghook.h \
-  /usr/include/glib-2.0/glib/giochannel.h \
-  /usr/include/glib-2.0/glib/gmain.h /usr/include/glib-2.0/glib/gslist.h \
-  /usr/include/glib-2.0/glib/gstring.h \
-  /usr/include/glib-2.0/glib/gunicode.h \
-  /usr/include/glib-2.0/glib/gutils.h \
-  /usr/lib/gcc/i386-redhat-linux/4.1.2/include/stdarg.h \
-  /usr/include/glib-2.0/glib/gkeyfile.h \
-  /usr/include/glib-2.0/glib/gmappedfile.h \
-  /usr/include/glib-2.0/glib/gmarkup.h \
-  /usr/include/glib-2.0/glib/gmessages.h \
-  /usr/include/glib-2.0/glib/gnode.h /usr/include/glib-2.0/glib/goption.h \
-  /usr/include/glib-2.0/glib/gpattern.h \
-  /usr/include/glib-2.0/glib/gprimes.h \
-  /usr/include/glib-2.0/glib/gqsort.h /usr/include/glib-2.0/glib/gqueue.h \
-  /usr/include/glib-2.0/glib/grand.h /usr/include/glib-2.0/glib/grel.h \
-  /usr/include/glib-2.0/glib/gscanner.h \
-  /usr/include/glib-2.0/glib/gshell.h /usr/include/glib-2.0/glib/gspawn.h \
-  /usr/include/glib-2.0/glib/gstrfuncs.h \
-  /usr/include/glib-2.0/glib/gthreadpool.h \
-  /usr/include/glib-2.0/glib/gtimer.h /usr/include/glib-2.0/glib/gtree.h \
-  /usr/include/string.h /usr/include/bits/string.h \
-  /usr/include/bits/string2.h /usr/include/endian.h \
-  /usr/include/bits/endian.h /usr/include/bits/byteswap.h \
-  /usr/include/stdlib.h /usr/include/pthread.h /usr/include/sched.h \
-  /usr/include/bits/sched.h /usr/include/signal.h \
-  /usr/include/bits/sigset.h /usr/include/bits/pthreadtypes.h \
-  /usr/include/bits/setjmp.h /usr/include/sys/types.h \
-  /usr/include/sys/select.h /usr/include/bits/select.h \
-  /usr/include/sys/sysmacros.h sdvserver.h /usr/include/sys/socket.h \
-  /usr/include/sys/uio.h /usr/include/bits/uio.h \
-  /usr/include/bits/socket.h /usr/include/bits/sockaddr.h \
-  /usr/include/asm/socket.h /usr/include/asm/sockios.h \
-  /usr/include/netdb.h /usr/include/netinet/in.h /usr/include/stdint.h \
-  /usr/include/bits/wchar.h /usr/include/bits/in.h \
-  /usr/include/rpc/netdb.h /usr/include/bits/netdb.h \
-  /usr/include/arpa/inet.h /usr/include/poll.h /usr/include/sys/poll.h \
-  /usr/include/bits/poll.h dsmcc.h
+dsmccgen-settopbox.o: settopbox.c /usr/include/sys/timeb.h \
+ /usr/include/_ansi.h /usr/include/newlib.h /usr/include/sys/config.h \
+ /usr/include/machine/ieeefp.h /usr/include/sys/features.h \
+ /usr/include/cygwin/config.h /usr/include/machine/types.h \
+ /usr/include/time.h /usr/include/_ansi.h /usr/include/sys/reent.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stddef.h \
+ /usr/include/sys/_types.h /usr/include/machine/_types.h \
+ /usr/include/machine/_default_types.h /usr/include/sys/lock.h \
+ /usr/include/machine/time.h /usr/include/sys/types.h \
+ /usr/include/cygwin/types.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wordsize.h /usr/include/endian.h \
+ /usr/include/bits/endian.h /usr/include/byteswap.h \
+ /usr/include/sys/sysmacros.h /usr/include/cygwin/time.h \
+ /usr/include/signal.h /usr/include/sys/signal.h \
+ /usr/include/cygwin/signal.h settopbox.h glib-min.h glibconfig.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/limits.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/syslimits.h \
+ /usr/include/limits.h /usr/include/features.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/sys/cdefs.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/float.h \
+ /usr/include/string.h /usr/include/sys/string.h /usr/include/pthread.h \
+ /usr/include/sched.h /usr/include/sys/sched.h /usr/include/stdio.h \
+ /usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stdarg.h \
+ /usr/include/sys/stdio.h sdvserver.h /usr/include/sys/socket.h \
+ /usr/include/cygwin/socket.h /usr/include/asm/socket.h \
+ /usr/include/cygwin/if.h /usr/include/cygwin/sockios.h \
+ /usr/include/sys/uio.h /usr/include/sys/time.h \
+ /usr/include/cygwin/sys_time.h /usr/include/sys/select.h \
+ /usr/include/netdb.h /usr/include/inttypes.h /usr/include/netinet/in.h \
+ /usr/include/cygwin/in.h /usr/include/asm/byteorder.h \
+ /usr/include/cygwin/in6.h /usr/include/arpa/inet.h /usr/include/poll.h \
+ /usr/include/sys/poll.h dsmcc.h
 
 /usr/include/sys/timeb.h:
 
-/usr/include/features.h:
+/usr/include/_ansi.h:
 
-/usr/include/sys/cdefs.h:
+/usr/include/newlib.h:
 
-/usr/include/bits/wordsize.h:
+/usr/include/sys/config.h:
 
-/usr/include/gnu/stubs.h:
+/usr/include/machine/ieeefp.h:
 
-/usr/include/gnu/stubs-32.h:
+/usr/include/sys/features.h:
+
+/usr/include/cygwin/config.h:
+
+/usr/include/machine/types.h:
 
 /usr/include/time.h:
 
-/usr/include/bits/types.h:
+/usr/include/_ansi.h:
 
-/usr/include/bits/typesizes.h:
+/usr/include/sys/reent.h:
 
-/usr/lib/gcc/i386-redhat-linux/4.1.2/include/stddef.h:
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stddef.h:
 
-/usr/include/bits/time.h:
+/usr/include/sys/_types.h:
 
-settopbox.h:
+/usr/include/machine/_types.h:
 
-/usr/include/glib-2.0/glib.h:
+/usr/include/machine/_default_types.h:
 
-/usr/include/glib-2.0/glib/galloca.h:
+/usr/include/sys/lock.h:
 
-/usr/include/glib-2.0/glib/gtypes.h:
+/usr/include/machine/time.h:
 
-/usr/lib/glib-2.0/include/glibconfig.h:
+/usr/include/sys/types.h:
 
-/usr/include/glib-2.0/glib/gmacros.h:
+/usr/include/cygwin/types.h:
 
-/usr/lib/gcc/i386-redhat-linux/4.1.2/include/limits.h:
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stdint.h:
 
-/usr/lib/gcc/i386-redhat-linux/4.1.2/include/syslimits.h:
+/usr/include/stdint.h:
 
-/usr/include/limits.h:
-
-/usr/include/bits/posix1_lim.h:
-
-/usr/include/bits/local_lim.h:
-
-/usr/include/linux/limits.h:
-
-/usr/include/bits/posix2_lim.h:
-
-/usr/lib/gcc/i386-redhat-linux/4.1.2/include/float.h:
-
-/usr/include/glib-2.0/glib/garray.h:
-
-/usr/include/glib-2.0/glib/gasyncqueue.h:
-
-/usr/include/glib-2.0/glib/gthread.h:
-
-/usr/include/glib-2.0/glib/gerror.h:
-
-/usr/include/glib-2.0/glib/gquark.h:
-
-/usr/include/glib-2.0/glib/gatomic.h:
-
-/usr/include/glib-2.0/glib/gbacktrace.h:
-
-/usr/include/glib-2.0/glib/gbase64.h:
-
-/usr/include/glib-2.0/glib/gbookmarkfile.h:
-
-/usr/include/glib-2.0/glib/gcache.h:
-
-/usr/include/glib-2.0/glib/glist.h:
-
-/usr/include/glib-2.0/glib/gmem.h:
-
-/usr/include/glib-2.0/glib/gslice.h:
-
-/usr/include/glib-2.0/glib/gcompletion.h:
-
-/usr/include/glib-2.0/glib/gconvert.h:
-
-/usr/include/glib-2.0/glib/gdataset.h:
-
-/usr/include/glib-2.0/glib/gdate.h:
-
-/usr/include/glib-2.0/glib/gdir.h:
-
-/usr/include/glib-2.0/glib/gfileutils.h:
-
-/usr/include/glib-2.0/glib/ghash.h:
-
-/usr/include/glib-2.0/glib/ghook.h:
-
-/usr/include/glib-2.0/glib/giochannel.h:
-
-/usr/include/glib-2.0/glib/gmain.h:
-
-/usr/include/glib-2.0/glib/gslist.h:
-
-/usr/include/glib-2.0/glib/gstring.h:
-
-/usr/include/glib-2.0/glib/gunicode.h:
-
-/usr/include/glib-2.0/glib/gutils.h:
-
-/usr/lib/gcc/i386-redhat-linux/4.1.2/include/stdarg.h:
-
-/usr/include/glib-2.0/glib/gkeyfile.h:
-
-/usr/include/glib-2.0/glib/gmappedfile.h:
-
-/usr/include/glib-2.0/glib/gmarkup.h:
-
-/usr/include/glib-2.0/glib/gmessages.h:
-
-/usr/include/glib-2.0/glib/gnode.h:
-
-/usr/include/glib-2.0/glib/goption.h:
-
-/usr/include/glib-2.0/glib/gpattern.h:
-
-/usr/include/glib-2.0/glib/gprimes.h:
-
-/usr/include/glib-2.0/glib/gqsort.h:
-
-/usr/include/glib-2.0/glib/gqueue.h:
-
-/usr/include/glib-2.0/glib/grand.h:
-
-/usr/include/glib-2.0/glib/grel.h:
-
-/usr/include/glib-2.0/glib/gscanner.h:
-
-/usr/include/glib-2.0/glib/gshell.h:
-
-/usr/include/glib-2.0/glib/gspawn.h:
-
-/usr/include/glib-2.0/glib/gstrfuncs.h:
-
-/usr/include/glib-2.0/glib/gthreadpool.h:
-
-/usr/include/glib-2.0/glib/gtimer.h:
-
-/usr/include/glib-2.0/glib/gtree.h:
-
-/usr/include/string.h:
-
-/usr/include/bits/string.h:
-
-/usr/include/bits/string2.h:
+/usr/include/bits/wordsize.h:
 
 /usr/include/endian.h:
 
 /usr/include/bits/endian.h:
 
-/usr/include/bits/byteswap.h:
+/usr/include/byteswap.h:
 
-/usr/include/stdlib.h:
+/usr/include/sys/sysmacros.h:
+
+/usr/include/cygwin/time.h:
+
+/usr/include/signal.h:
+
+/usr/include/sys/signal.h:
+
+/usr/include/cygwin/signal.h:
+
+settopbox.h:
+
+glib-min.h:
+
+glibconfig.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/limits.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/features.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include-fixed/sys/cdefs.h:
+
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/float.h:
+
+/usr/include/string.h:
+
+/usr/include/sys/string.h:
 
 /usr/include/pthread.h:
 
 /usr/include/sched.h:
 
-/usr/include/bits/sched.h:
+/usr/include/sys/sched.h:
 
-/usr/include/signal.h:
+/usr/include/stdio.h:
 
-/usr/include/bits/sigset.h:
+/usr/lib/gcc/x86_64-pc-cygwin/4.8.2/include/stdarg.h:
 
-/usr/include/bits/pthreadtypes.h:
-
-/usr/include/bits/setjmp.h:
-
-/usr/include/sys/types.h:
-
-/usr/include/sys/select.h:
-
-/usr/include/bits/select.h:
-
-/usr/include/sys/sysmacros.h:
+/usr/include/sys/stdio.h:
 
 sdvserver.h:
 
 /usr/include/sys/socket.h:
 
-/usr/include/sys/uio.h:
-
-/usr/include/bits/uio.h:
-
-/usr/include/bits/socket.h:
-
-/usr/include/bits/sockaddr.h:
+/usr/include/cygwin/socket.h:
 
 /usr/include/asm/socket.h:
 
-/usr/include/asm/sockios.h:
+/usr/include/cygwin/if.h:
+
+/usr/include/cygwin/sockios.h:
+
+/usr/include/sys/uio.h:
+
+/usr/include/sys/time.h:
+
+/usr/include/cygwin/sys_time.h:
+
+/usr/include/sys/select.h:
 
 /usr/include/netdb.h:
 
+/usr/include/inttypes.h:
+
 /usr/include/netinet/in.h:
 
-/usr/include/stdint.h:
+/usr/include/cygwin/in.h:
 
-/usr/include/bits/wchar.h:
+/usr/include/asm/byteorder.h:
 
-/usr/include/bits/in.h:
-
-/usr/include/rpc/netdb.h:
-
-/usr/include/bits/netdb.h:
+/usr/include/cygwin/in6.h:
 
 /usr/include/arpa/inet.h:
 
 /usr/include/poll.h:
 
 /usr/include/sys/poll.h:
-
-/usr/include/bits/poll.h:
 
 dsmcc.h:

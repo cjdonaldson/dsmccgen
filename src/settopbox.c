@@ -34,7 +34,7 @@
 
 
 gchar vsbuff[500];
-static pthread_mutex_t stb_mutex  = PTHREAD_MUTEX_INITIALIZER;
+//static pthread_mutex_t stb_mutex  = PTHREAD_MUTEX_INITIALIZER;
 
 
 void
@@ -101,22 +101,22 @@ stb_dsmcc_out( stb_t* stbptr ) {
     static char    cbuff[500];
     snprint_log( cbuff, sizeof cbuff, &tmval, stbptr );
 
-    //if ( dsmccptr->hdr.descriminator != DSMCC_DESCRIMINATOR ) {
+    struct st_dsmcc_hdr* hdr = &dsmccptr->hdr;
+    if ( hdr->descriminator != DSMCC_DESCRIMINATOR ) {
         /* here if first time */
         /* set the default values for root structure */
-        struct st_dsmcc_hdr hdr = dsmccptr->hdr;
-        hdr.descriminator  = DSMCC_DESCRIMINATOR;
-        hdr.type           = DSMCC_TYPE_SDV;
-        hdr.res            = 0xFF;
-        hdr.adaptLen       = 0x00;
+        hdr->descriminator  = DSMCC_DESCRIMINATOR;
+        hdr->type           = DSMCC_TYPE_SDV;
+        hdr->res            = 0xFF;
+        hdr->adaptLen       = 0x00;
 
         /* not part of hdr but common to all payloads */
         memcpy( dsmccptr->sdb_init_request.sessId, stbptr->macaddr, sizeof stbptr->macaddr );
-    //}
+    }
 
     if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ) {
         /* take care of header */
-        dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_init_request ) );
+        hdr->msgLen = htons( sizeof( struct st_dsmcc_sdb_init_request ) );
 
         /* payload for init v2.12 */
         struct st_dsmcc_sdb_init_request* sdb_init_request = &dsmccptr->sdb_init_request;
@@ -138,7 +138,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST ) {
         /* take care of header */
-        dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_select_request ) );
+        hdr->msgLen = htons( sizeof( struct st_dsmcc_sdb_select_request ) );
 
         /* payload for select request */
         struct st_dsmcc_sdb_select_request* sdb_select_request = &dsmccptr->sdb_select_request;
@@ -162,15 +162,15 @@ stb_dsmcc_out( stb_t* stbptr ) {
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE ) {
         /* take care of header */
-        dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_select_response ) );
+        hdr->msgLen = htons( sizeof( struct st_dsmcc_sdb_select_response ) );
 
         /* payload for select response */
         dsmccptr->sdb_select_response.response = htons( rspOk );
         dsmccptr->sdb_select_response.dataLen  = 0;  /* set to 0 */
         gint i = ntohs( dsmccptr->sdb_select_response.response );
 
-        gboolean b_display  = stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL )
-                           || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        gboolean b_display  = ( stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL ) )
+                           || ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -184,7 +184,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_ACTIVITY_REPORT ) {
         /* take care of header */
-        dsmccptr->hdr.msgLen = htons( sizeof( struct st_dsmcc_sdb_activity_report ) );
+        hdr->msgLen = htons( sizeof( struct st_dsmcc_sdb_activity_report ) );
 
         /* payload for select response */
         dsmccptr->sdb_activity_report.res = 0xFFFF;
@@ -201,10 +201,9 @@ stb_dsmcc_out( stb_t* stbptr ) {
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_QUERY_CONFIRM ) {
         /* take care of header */
-        dsmccptr->hdr.msgLen                         = htons( sizeof( struct st_dsmcc_sdb_query_confirm ) );
+        hdr->msgLen = htons( sizeof( struct st_dsmcc_sdb_query_confirm ) );
 
         struct st_dsmcc_sdb_query_confirm* sdb_query_confirm = &dsmccptr->sdb_query_confirm;
-
 
         /* payload for query confirm */
         sdb_query_confirm->response         = htons( rspOk );
@@ -238,12 +237,12 @@ stb_dsmcc_out( stb_t* stbptr ) {
     }
 
     /* made it here; set the common data */
-    /* set the dymanic parameters of the root structure */
-    dsmccptr->hdr.msgId     = htons( stbptr->msgId );
-    dsmccptr->hdr.transxId  = htonl( ( stbptr->transxId )++ );
+    /* set the dynamic parameters of the root structure */
+    hdr->msgId     = htons( stbptr->msgId );
+    hdr->transxId  = htonl( ( stbptr->transxId )++ );
 
     /* calculate message length*/
-    stbptr->dsmcc_len       = sizeof( struct st_dsmcc_hdr ) + ntohs( dsmccptr->hdr.msgLen );
+    stbptr->dsmcc_len = sizeof( struct st_dsmcc_hdr ) + ntohs( hdr->msgLen );
 
     /* send the message and then wait for response */
     gint i = send_data( stbptr->srvrptr, ( gchar* ) &stbptr->dsmcc, stbptr->dsmcc_len );
@@ -335,8 +334,8 @@ stb_dsmcc_in( stb_t* stbptr ) {
     if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_CONFIRM ) {
         i         = ntohs( dsmccptr->sdb_init_confirm.response );
 
-        b_display = stbptr->flags & VERBOSEIN
-                    || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        b_display  = ( stbptr->flags & VERBOSEIN );
+		b_display |=  ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -353,9 +352,9 @@ stb_dsmcc_in( stb_t* stbptr ) {
                     val_to_string( i, dsmcc_selectresponse_names ) );
 
             /*
-                    if ( msglen < dsmccptr->hdr.msgLen )
+                    if ( msglen < hdr->msgLen )
                         printf( " << header message length too long >>" );
-                    else if ( msglen > dsmccptr->hdr.msgLen )
+                    else if ( msglen > hdr->msgLen )
                         printf( " << header message length too short >>" );
 
                         printf( "\n" );
@@ -369,8 +368,8 @@ stb_dsmcc_in( stb_t* stbptr ) {
         stbptr->mpegnumber = ntohs( dsmccptr->sdb_select_confirm.programNumber );
         i                  = ntohs( dsmccptr->sdb_select_confirm.response );
 
-        b_display = stbptr->flags & VERBOSEIN
-                    || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        b_display  = stbptr->flags & VERBOSEIN;
+        b_display |=  ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -391,9 +390,9 @@ stb_dsmcc_in( stb_t* stbptr ) {
                     stbptr->mpegnumber );
 
             /*
-                    if ( sizeof dsmccptr->sdb_select_confirm < dsmccptr->hdr.msgLen )
+                    if ( sizeof dsmccptr->sdb_select_confirm < hdr->msgLen )
                         printf( " << header message length too long >>" );
-                    else if ( sizeof dsmccptr->sdb_select_confirm > dsmccptr->hdr.msgLen )
+                    else if ( sizeof dsmccptr->sdb_select_confirm > hdr->msgLen )
                         printf( " << header message length too short >>" );
 
                     if ( 14 < dsmccptr->sdb_select_confirm.dataLen )
@@ -413,8 +412,8 @@ stb_dsmcc_in( stb_t* stbptr ) {
 
         i                  = ntohs( dsmccptr->sdb_select_indication.reason );
 
-        b_display          = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL )
-                             || ( ( i > 0 ) && stbptr->flags & VERBOSEERROR );
+        b_display          = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL );
+		b_display         |= ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -435,9 +434,9 @@ stb_dsmcc_in( stb_t* stbptr ) {
                     stbptr->mpegnumber );
 
             /*
-                    if ( msglen < dsmccptr->hdr.msgLen )
+                    if ( msglen < hdr->msgLen )
                         printf( " << header message length too long >>" );
-                    else if ( msglen > dsmccptr->hdr.msgLen )
+                    else if ( msglen > hdr->msgLen )
                         printf( " << header message length too short >>" );
 
                     if ( sizeof dsmccptr->sdb_select_indication < dsmccptr->sdb_select_indication.dataLen )
@@ -644,15 +643,14 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         stbptr->state = e_state_done;
     }
 
+    // log message event type  and abnormal events if dbg'ing fsm abnormals
+    // log all if dbg'ing fsm full
     gboolean  b_display;
-    b_display  =      stbptr->flags & DBGFSMFULL;
-    b_display |= (    stbptr->flags & DBGFSMABN ) &&
-                 (    stbptr->msgId == DSMCC_MSGID_SDV_SELECT_INDICATION
-                   || stbptr->msgId == DSMCC_MSGID_SDV_SELECT_RESPONSE
-                   || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_INDICATION
-                   || stbptr->msgId == DSMCC_MSGID_SDV_EVENT_RESPONSE
-                   || b_dbgabnevnt
-                 );
+    b_display = stbptr->msgId & DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS;
+    b_display |= b_dbgabnevnt;
+    b_display &= stbptr->flags & DBGFSMABN;
+
+    b_display |= stbptr->flags & DBGFSMFULL;
 
     if ( b_display && stbptr->state != oldstate && stbptr->msgId != oldmsg ) {
         dbg_print_stb( fsmdbgtxtptr, stbptr );

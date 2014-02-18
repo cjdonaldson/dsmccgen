@@ -1,4 +1,6 @@
 
+#include <stdlib.h>
+
 #include "dsmcc.h"
 #include "sdvserver.h"
 
@@ -87,7 +89,7 @@ init_channel( server_t* svrptr ) {
 
 gint
 send_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
-#define TXFLAGS 0
+#   define TXFLAGS 0
     gint bytes_sent = sendto( svrptr->sockfd, buffptr, buff_len, TXFLAGS,
                               ( struct sockaddr* )&svrptr->dst_addr, sizeof svrptr->dst_addr );
 

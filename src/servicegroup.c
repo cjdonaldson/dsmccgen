@@ -1,4 +1,5 @@
 
+#include <stdlib.h>
 #include <sys/timeb.h>    /* for timeb to get millitime */
 #include <time.h>
 #include "dsmcc.h"
@@ -8,7 +9,7 @@ static pthread_mutex_t sg_mutex  = PTHREAD_MUTEX_INITIALIZER;
 
 stb_t stb;
 
-static gboolean b_debug = FALSE;
+//static gboolean b_debug = FALSE;
 
 #define STUCK_TOOLONG 50
 
@@ -40,14 +41,14 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
         sgptr->stbend       = NULL;
     }
     else {
-        printf( "Initing service group %i\n", sgptr->servicegroup );
+        printf( "Init'ing service group %i\n", sgptr->servicegroup );
 
         if ( sgptr->stbcnt == 0 ) {
             printf( "no stb\n" );
             return FALSE;
         }
 
-        sgptr->stbbegin = malloc( sgptr->stbcnt * sizeof ( stb_t ) );
+        sgptr->stbbegin = (stb_t*)malloc( sgptr->stbcnt * sizeof( stb_t ) );
         if ( sgptr->stbbegin == NULL ) {
             perror( " stb alloc" );
             return FALSE;
@@ -66,7 +67,7 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
                       sgptr->stbbase, i, sgptr->flags, dwell_time_period );
         }
 
-        printf( "finished init service group %i\n", sgptr->servicegroup );
+        printf( "finished init'ing service group %i\n", sgptr->servicegroup );
     }
 
     return TRUE;
@@ -123,7 +124,7 @@ check_for_data( servicegroup_t* sgptr ) {
             if ( cmpr == 0 ) {
                 /* it is one of ours, so pull it out of the buffer */
                 /* proccess the message and maybe show stuff */
-                if ( !stb_dsmcc_in( stb_m_itr ) && stb_m_itr->flags & VERBOSEIN ) {
+                if ( !stb_dsmcc_in( stb_m_itr ) && ( stb_m_itr->flags & VERBOSEIN ) ) {
                     printf( "sg%u stb_dsmcc_in failed\n", sgptr->servicegroup  );
                 }
 
@@ -178,13 +179,13 @@ sg_run_task( void* ptr ) {
     servicegroup_t* sgptr    = ( servicegroup_t* )ptr;
     server_t*       svrptr   = sgptr->srvrptr;
 
-    /* set arting source id */
+    /* set starting source id */
     guint sourceId = sgptr->srcidmin;
 
     if ( !init_channel( svrptr ) ) {
         /* here if server socket setup failed */
         printf( "dsmcc_init failed" );
-        return;
+        return NULL;
     }
 
     printf( "running task sg%i\n", sgptr->servicegroup );
@@ -236,7 +237,7 @@ sg_run_task( void* ptr ) {
             b_send |= stbitr->state == e_state_tx && !b_gatedmsg;
 
             if ( b_send ) {
-                /* here iff stb is transmiting */
+                /* here iff stb is transmitting */
                 /* lock access to common resources */
                 pthread_mutex_lock( &sg_mutex );
 
@@ -250,7 +251,7 @@ sg_run_task( void* ptr ) {
 
 
         if ( b_timeout ) {
-            /* here iff unext_time has expried */
+            /* here iff unext_time has expired */
             /* refresh next_time */
             sgptr->next_time.tv_usec += sgptr->rate;
             while ( sgptr->next_time.tv_usec >= SECOND_UTIME ) {
@@ -300,10 +301,11 @@ sg_run_task( void* ptr ) {
     }
 
     pthread_mutex_unlock( &sg_mutex );
+    return NULL;
 }
 
 void
 sg_free( servicegroup_t* sgptr ) {
-    printf( "freeing servcie group %i\n", sgptr->servicegroup );
+    printf( "freeing service group %i\n", sgptr->servicegroup );
     free( sgptr->stbbegin );
 }

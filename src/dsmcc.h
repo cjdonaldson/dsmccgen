@@ -152,18 +152,25 @@ typedef struct _value_string {
     gchar*    strptr;
 } value_string;
 
-#define DSMCC_MSGID_SDV_SELECT_REQUEST       0x0001  /* message from stb */
-#define DSMCC_MSGID_SDV_SELECT_CONFIRM       0x0002  /* message from svr */
-#define DSMCC_MSGID_SDV_SELECT_INDICATION    0x0003  /* message from svr */
-#define DSMCC_MSGID_SDV_SELECT_RESPONSE      0x0004  /* message from stb */
-#define DSMCC_MSGID_SDV_ACTIVITY_REPORT      0x8000  /* message from stb */
+enum {
+    DSMCC_MSGID_SDV_SELECT_REQUEST       = 0x0001,  /* message from stb */
+    DSMCC_MSGID_SDV_SELECT_CONFIRM       = 0x0002,  /* message from svr */
+    DSMCC_MSGID_SDV_SELECT_INDICATION    = 0x0003,  /* message from svr */
+    DSMCC_MSGID_SDV_SELECT_RESPONSE      = 0x0004,  /* message from stb */
+    DSMCC_MSGID_SDV_ACTIVITY_REPORT      = 0x8000,  /* message from stb */
 
-#define DSMCC_MSGID_SDV_INIT_REQUEST         0x8001  /* message from stb */
-#define DSMCC_MSGID_SDV_INIT_CONFIRM         0x8002  /* message from svr */
-#define DSMCC_MSGID_SDV_QUERY_REQUEST        0x8003  /* message from svr */
-#define DSMCC_MSGID_SDV_QUERY_CONFIRM        0x8004  /* message from stb */
-#define DSMCC_MSGID_SDV_EVENT_INDICATION     0x8005  /* message from svr */
-#define DSMCC_MSGID_SDV_EVENT_RESPONSE       0x8006  /* message from stb */
+    DSMCC_MSGID_SDV_INIT_REQUEST         = 0x8001,  /* message from stb */
+    DSMCC_MSGID_SDV_INIT_CONFIRM         = 0x8002,  /* message from svr */
+    DSMCC_MSGID_SDV_QUERY_REQUEST        = 0x8003,  /* message from svr */
+    DSMCC_MSGID_SDV_QUERY_CONFIRM        = 0x8004,  /* message from stb */
+    DSMCC_MSGID_SDV_EVENT_INDICATION     = 0x8005,  /* message from svr */
+    DSMCC_MSGID_SDV_EVENT_RESPONSE       = 0x8006,  /* message from stb */
+
+    DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS      = DSMCC_MSGID_SDV_SELECT_INDICATION ||
+                                           DSMCC_MSGID_SDV_SELECT_RESPONSE ||
+                                           DSMCC_MSGID_SDV_EVENT_INDICATION ||
+                                           DSMCC_MSGID_SDV_EVENT_RESPONSE
+};
 
 static const value_string dsmcc_msgid_names[] = {
     { DSMCC_MSGID_SDV_SELECT_REQUEST,    "SlctRqst" },
@@ -225,11 +232,13 @@ static const value_string dsmcc_tuneruse_fail_names[] = {
     { 0, NULL }
 };
 
-#define rsnOk                   0x0000
-#define rsnNormal               0x0001
-#define rsnSeEntitlementFailure 0x0002
-#define rsnForceTune            0x8000
-#define rsnProgNotAvailable     0x8001
+enum {
+    rsnOk                   = 0x0000,
+    rsnNormal               = 0x0001,
+    rsnSeEntitlementFailure = 0x0002,
+    rsnForceTune            = 0x8000,
+    rsnProgNotAvailable     = 0x8001
+};
 
 static const value_string dsmcc_selectreason_names[] = {
     { rsnOk,                   "rsnOK       " },
@@ -240,18 +249,20 @@ static const value_string dsmcc_selectreason_names[] = {
     { 0, NULL }
 };
 
-#define rspOk                  0x0000
-#define rspFomratError         0x0001
-#define rspNoSession           0x0002
-#define rspProgOutOfService    0x0006
-#define rspRedirect            0x0007
-#define rspInvalidSG           0x8001
-#define rspUnknownClient       0x8002
-#define rspSeNoResource        0x8003
-#define rspNetBwNotAvail       0x8004
-#define rspSrvCapacityExceeded 0x8005
-#define rspVerNotSuport        0x8006
-#define rspUnknownError        0x8FFF
+enum {
+    rspOk                  = 0x0000,
+    rspFomratError         = 0x0001,
+    rspNoSession           = 0x0002,
+    rspProgOutOfService    = 0x0006,
+    rspRedirect            = 0x0007,
+    rspInvalidSG           = 0x8001,
+    rspUnknownClient       = 0x8002,
+    rspSeNoResource        = 0x8003,
+    rspNetBwNotAvail       = 0x8004,
+    rspSrvCapacityExceeded = 0x8005,
+    rspVerNotSuport        = 0x8006,
+    rspUnknownError        = 0x8FFF
+};
 
 static const value_string dsmcc_selectresponse_names[] = {
     { rspOk,                  "rspOK" },

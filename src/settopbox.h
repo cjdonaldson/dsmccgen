@@ -10,32 +10,33 @@
 #include "sdvserver.h"
 #include "dsmcc.h"
 
+enum {
+    NOINITFLG      = 0x0001,
+    LOOPFLG        = 0x0002,
+    RETUNEFAILURES = 0x0004,
+    STBDUMP        = 0x0080,
 
-#define NOINITFLG      0x0001
-#define LOOPFLG        0x0002
-#define RETUNEFAILURES 0x0004
-#define STBDUMP        0x0080
-
-#define IGNOREERROR    0x0200
-#define VERBOSEFAIL    0x0400
-#define VERBOSEERROR   0x0800
-#define VERBOSEIN      0x1000
-#define VERBOSEOUT     0x2000
-#define DBGFSMABN      0x4000
-#define DBGFSMFULL     0x8000
-
+    IGNOREERROR    = 0x0200,
+    VERBOSEFAIL    = 0x0400,
+    VERBOSEERROR   = 0x0800,
+    VERBOSEIN      = 0x1000,
+    VERBOSEOUT     = 0x2000,
+    DBGFSMABN      = 0x4000,
+    DBGFSMFULL     = 0x8000
+};
 
 //#define STBISSTUCK 20
 
 /* SDV servers should respond with in 3 seconds */
-#define TIMEOUTPERIOD_SEC  3 /* seconds */
-#define TIMEOUTPERIOD_USEC 0 /* micro seconds */
+enum {
+    TIMEOUTPERIOD_SEC  = 3, /* seconds */
+    TIMEOUTPERIOD_USEC = 0, /* micro seconds */
 
-#define TUNEFAILUREMAX     3 /* # of server timeouts before stb is failed */
+    TUNEFAILUREMAX     = 3, /* # of server timeouts before stb is failed */
 
-#define SECOND_UTIME 1000000    /* 1000000 usec in 1 sec */
-#define NEVEREXPIRE 0xFFFFFFFF  /* end of time */
-
+    SECOND_UTIME       = 1000000,    /* 1000000 usec in 1 sec */
+    NEVEREXPIRE        = 0xFFFFFFFF  /* end of time */
+};
 
 enum e_state {
     e_state_next,
