@@ -11,7 +11,7 @@
 gboolean
 set_ip( server_t* svrptr, gchar* ipptr ) {
     gint len      = strlen( ipptr );
-    svrptr->svmip = malloc( len + 1 );
+    svrptr->svmip = (gchar*) malloc( len + 1 );
 
     if ( svrptr->svmip == 0 ) {
         perror( "set_ip malloc" );
