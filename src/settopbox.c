@@ -170,7 +170,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
         gint i = ntohs( dsmccptr->sdb_select_response.response );
 
         gboolean b_display  = ( stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL ) )
-                           || ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
+                              || ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -335,7 +335,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
         i         = ntohs( dsmccptr->sdb_init_confirm.response );
 
         b_display  = ( stbptr->flags & VERBOSEIN );
-		b_display |=  ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
+        b_display |=  ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */
@@ -413,7 +413,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
         i                  = ntohs( dsmccptr->sdb_select_indication.reason );
 
         b_display          = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL );
-		b_display         |= ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
+        b_display         |= ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
             /* display some stuff */

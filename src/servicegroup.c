@@ -48,7 +48,7 @@ sg_init( servicegroup_t* sgptr, gboolean b_clear ) {
             return FALSE;
         }
 
-        sgptr->stbbegin = (stb_t*)malloc( sgptr->stbcnt * sizeof( stb_t ) );
+        sgptr->stbbegin = ( stb_t* )malloc( sgptr->stbcnt * sizeof( stb_t ) );
         if ( sgptr->stbbegin == NULL ) {
             perror( " stb alloc" );
             return FALSE;
