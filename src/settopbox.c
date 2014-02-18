@@ -579,7 +579,7 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
             stbptr->state = e_state_next;
         }
         else {
-            /*here if stb is done tuning channels */
+            /* here if stb is done tuning channels */
             stbptr->state = e_state_done;
         }
     }
