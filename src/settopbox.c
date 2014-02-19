@@ -3,7 +3,6 @@
 
 #include "settopbox.h"
 
-
 /* Verbose diagnostic options
  *
  * Message                  VERBOSEIN  VERBOSEOUT VERBOSEERROR VERBOSEFAIL IGNOREERROR DBGFSMFULL DBGFSMABN
@@ -36,6 +35,17 @@
 gchar vsbuff[500];
 //static pthread_mutex_t stb_mutex  = PTHREAD_MUTEX_INITIALIZER;
 
+void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number) {
+    macaddr[1]  = ( stb_base >> 8 & 0xFF );
+    macaddr[2]  = ( stb_base & 0xFF );
+    macaddr[4]  = ( stb_number >> 8 & 0xFF );
+    macaddr[5]  = ( stb_number & 0xFF );
+}
+
+void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number) {
+	*stb_base   = macaddr[1] << 8 | macaddr[2];
+	*stb_number = macaddr[4] << 8 | macaddr[5];
+}
 
 void
 stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr, guint stb_base, guint stb_number, guint flags, struct timeval dwell_time_period ) {
@@ -46,10 +56,7 @@ stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr, guint stb_base, guin
 
     /* mac addr 6 + tuner# 1 + reseved 3 */
     memset( stbptr->macaddr, '\0', sizeof stbptr->macaddr );
-    stbptr->macaddr[1]        = ( stb_base >> 8 & 0xFF );
-    stbptr->macaddr[2]        = ( stb_base & 0xFF );
-    stbptr->macaddr[4]        = ( stb_number >> 8 & 0xFF );
-    stbptr->macaddr[5]        = ( stb_number & 0xFF );
+    encode_macaddr( stbptr->macaddr, stb_base, stb_number );
 
     stbptr->transxId          = 1;
 
@@ -62,7 +69,9 @@ stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr, guint stb_base, guin
     stbptr->time_out.tv_sec   = NEVEREXPIRE;
     stbptr->time_out.tv_usec  = NEVEREXPIRE;
 
-    stbptr->sourceId          = 0;
+    // do not use 0 as that will signal a signoff, this value will be overwritten with the next channel in the group
+    stbptr->sourceId          = 1;
+
     stbptr->frequency         = 0;
     stbptr->modulation        = 0;
     stbptr->mpegnumber        = 0;
@@ -512,17 +521,17 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
                  ( tmval.tv_sec == stbptr->time_out.tv_sec &&
                    tmval.tv_usec > stbptr->time_out.tv_usec );
 
-    gboolean       b_dbgabnevnt = FALSE;
-    gchar*         fsmdbgtxtptr = " FSM ";
+    gboolean         b_dbgabnevnt = FALSE;
+    gchar*           fsmdbgtxtptr = " FSM ";
 
-    estate         oldstate     = stbptr->state;
-    guint32        oldmsg       = stbptr->msgId;
+    estate           oldstate     = stbptr->state;
+    DSMCC_MSGID_SDV  oldmsg       = stbptr->msgId;
 
     if ( stbptr->state == e_state_done ) {
         ;    /* here if this stb is done; do nothing */
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_INDICATION ) {
-        /* here if svr sent revised tune info */
+        /* here if server sent revised tune info */
         stbptr->msgId       = DSMCC_MSGID_SDV_SELECT_RESPONSE;
         stbptr->tunefailcnt = 0;
         stbptr->state       = e_state_tx;
@@ -539,17 +548,17 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         }
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_QUERY_REQUEST ) {
-        /* here if svr needs tuned src id */
+        /* here if server needs tuned src id */
         stbptr->msgId = DSMCC_MSGID_SDV_QUERY_CONFIRM;
         stbptr->state = e_state_tx;
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_QUERY_CONFIRM ) {
-        /* here if stb responed to QUERY_REQUEST */
+        /* here if server responded to QUERY_REQUEST */
         stbptr->msgId = DSMCC_MSGID_SDV_SELECT_REQUEST;
         stbptr->state = e_state_next;
     }
     else if ( stbptr->msgId == DSMCC_MSGID_SDV_EVENT_INDICATION ) {
-        /* here if svr sent ???? */
+        /* here if server sent ???? */
         stbptr->msgId = DSMCC_MSGID_SDV_EVENT_RESPONSE;
         stbptr->state = e_state_tx;
     }
@@ -583,54 +592,58 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
             stbptr->state = e_state_done;
         }
     }
-    else if ( stbptr->state == e_state_wait && stbptr->sourceId == 0 ) {
-        /* here if stb sent a sign off msg; srcid=0 and waiting */
-        fsmdbgtxtptr  = " FSM signoff ";
+    else if ( stbptr->state == e_state_wait  ) {
+    	if ( stbptr->sourceId == 0 ) {
+            /* here if stb sent a sign off msg; srcid=0 and waiting */
+            fsmdbgtxtptr  = " FSM signoff ";
 
-        b_dbgabnevnt  = TRUE;
-        stbptr->state = e_state_done;
+            stbptr->state = e_state_done;
+            b_dbgabnevnt  = TRUE;
+    	}
+        else if ( b_timeout ) {
+            /* here if stb spent too much time NOT tx'g */
+            fsmdbgtxtptr  = " FSM timeout ";
+            b_dbgabnevnt  = TRUE;
+            stbptr->state = e_state_next;
+        }
     }
     else if ( b_timeout ) {
         /* here if stb spent too much time NOT tx'g */
         fsmdbgtxtptr  = " FSM timeout ";
         b_dbgabnevnt  = TRUE;
         stbptr->state = e_state_next;
+    }
+    else if ( stbptr->state == e_state_tx ) {
+        ; // waiting for service group  to send this stb message
+    }
+    else if ( stbptr->state == e_state_next ) {
+        if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ) { /* do not change this */
+            /* here if stb timed out and did not init, so try again */
+            if ( stbptr->flags & NOINITFLG ) {
+                /* here if skipping the init sequence and going straight to channel */
+                stbptr->msgId = DSMCC_MSGID_SDV_SELECT_REQUEST;
+            }
+            else {
+                /* here if stb is to send init */
+                stbptr->state = e_state_tx;
+            }
+        }
+        else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST ) {
+            /* here if stb is ready for a new channel */
+            /*      or looping to another channel */
+            if ( b_dwelling ) {
+                /* wait for dwell time to expire */
+                ;
+            }
+            else {
+                /* ready to move on */
+                stbptr->sourceId = *sourceidptr;
+                stbptr->state    = e_state_tx;
 
-        // disable tune failure and force to next source_id
-        //if ( ++stbptr->tunefailcnt > TUNEFAILUREMAX )
-        //    stbptr->state = e_state_done;
-        //stbptr->state = e_state_next;
-    }
-    else if ( stbptr->state != e_state_next ) {
-        /* do nothing; the next commands are for next state processing */
-        ;
-    }
-    else if ( stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ) { /* do not change this */
-        /* here if stb timed out and did not init, so try again */
-        if ( stbptr->flags & NOINITFLG ) {
-            /* here if skipping the init sequence and going straight to channel */
-            stbptr->msgId = DSMCC_MSGID_SDV_SELECT_REQUEST;
-        }
-        else {
-            /* here if stb is to send init */
-            stbptr->state = e_state_tx;
-        }
-    }
-    else if ( stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST ) {
-        /* here if stb is ready for a new cannel */
-        /*      or looping to another channel */
-        if ( b_dwelling ) {
-            /* wait for dwell time to expire */
-            ;
-        }
-        else {
-            /* ready to move on */
-            stbptr->sourceId = *sourceidptr;
-            stbptr->state    = e_state_tx;
-
-            /* set next channel for next stb */
-            if ( ++( *sourceidptr ) > sourceid_max ) {
-                *sourceidptr = sourceid_min;
+                /* set next channel for next stb */
+                if ( ++( *sourceidptr ) > sourceid_max ) {
+                    *sourceidptr = sourceid_min;
+                }
             }
         }
     }
@@ -646,13 +659,15 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     // log message event type  and abnormal events if dbg'ing fsm abnormals
     // log all if dbg'ing fsm full
     gboolean  b_display;
-    b_display = stbptr->msgId & DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS;
-    b_display |= b_dbgabnevnt;
+    //b_display = stbptr->msgId & DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS;
+    //b_display |= b_dbgabnevnt;
+    b_display  = b_dbgabnevnt;
     b_display &= stbptr->flags & DBGFSMABN;
 
     b_display |= stbptr->flags & DBGFSMFULL;
 
-    if ( b_display && stbptr->state != oldstate && stbptr->msgId != oldmsg ) {
+    if ( b_display && ( stbptr->state != oldstate || stbptr->msgId != oldmsg ) ) {
+    	printf("fsm ");
         dbg_print_stb( fsmdbgtxtptr, stbptr );
     }
 
@@ -675,11 +690,11 @@ sessionId_to_string( guint8 sessionId[] ) {
 
 void
 dbg_print_stb( gchar* str, stb_t* stbptr ) {
+    print_stb( stbptr );
+
     if ( str != NULL ) {
         printf( str );
     }
-
-    print_stb( stbptr );
 }
 
 const value_string debug_stbstate_names[] = {

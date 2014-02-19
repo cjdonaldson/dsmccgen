@@ -35,7 +35,7 @@ init_channel( server_t* svrptr ) {
         return TRUE;
     }
 
-    printf( "initing server: %s \n", svrptr->svmip );
+    printf( "init'ing server: %s \n", svrptr->svmip );
 
     host = gethostbyname( svrptr->svmip );
     if ( !host ) {

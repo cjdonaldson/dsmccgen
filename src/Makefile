@@ -43,7 +43,7 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/config.h
+CONFIG_HEADER = $(top_builddir)/1
 CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -75,12 +75,12 @@ AUTOMAKE = ${SHELL} /cygdrive/c/repos-git/dsmccgen/missing --run automake-1.9
 AWK = gawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2
+CFLAGS = -g
 CPP = gcc -E
 CPPFLAGS = 
 CXX = g++
 CXXDEPMODE = depmode=gcc3
-CXXFLAGS = -g -O2
+CXXFLAGS =  -g
 CYGPATH_W = cygpath -w
 DEFS = -DHAVE_CONFIG_H
 DEPDIR = .deps
@@ -104,16 +104,16 @@ OBJEXT = o
 PACKAGE = full-package-name
 PACKAGE_BUGREPORT = BUG-REPORT-ADDRESS
 PACKAGE_NAME = FULL-PACKAGE-NAME
-PACKAGE_STRING = FULL-PACKAGE-NAME VERSION
+PACKAGE_STRING = FULL-PACKAGE-NAME 2.61
 PACKAGE_TARNAME = full-package-name
 PACKAGE_URL = 
-PACKAGE_VERSION = VERSION
+PACKAGE_VERSION = 2.61
 PATH_SEPARATOR = :
 RANLIB = ranlib
 SET_MAKE = 
 SHELL = /bin/sh
 STRIP = 
-VERSION = VERSION
+VERSION = 2.61
 ac_ct_CC = gcc
 ac_ct_CXX = g++
 am__fastdepCC_FALSE = #
@@ -158,7 +158,7 @@ dsmccgen_LDADD =
 dsmccgen_LDFLAGS = -lpthread
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0/glib
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -pthread
-dsmccgen_CFLAGS = -v -pthread -O0
+dsmccgen_CFLAGS = -v -pthread -Og
 all: all-am
 
 .SUFFIXES:

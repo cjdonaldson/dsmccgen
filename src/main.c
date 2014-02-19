@@ -34,12 +34,12 @@ usage( gchar* appname ) {
     printf( "      -c  | --stbcnt number         the number of settops to simulate\n" );
     printf( "                                    utilizes last 4 mac octets; default 1.\n" );
 //    printf( "      -d  | --dwell number          the tuned channel dwell time milliseconds - default 250.\n" );
-    printf( "      -f  | --file filename         a configuration file specifing multiple cli invocations\n" );
+    printf( "      -f  | --file filename         a configuration file specifying multiple cli invocations\n" );
     printf( "      -h  | --hold timems           hold off time before task is started. ie inter-task gap\n" );
     printf( "      -l  | --loop                  round robin the stb and srcids.\n" );
     printf( "      -n  | --noinit                skip stb initialization.\n" );
     printf( "      -r  | --rate timems           milliseconds between channel changes - default 250.\n" );
-    printf( "      -s  | --srcids number number  range of source IDs begining to ending.\n" );
+    printf( "      -s  | --srcids number number  range of source IDs beginning to ending.\n" );
     printf( "      -z  seconds                   dwell on channel for n seconds.\n" );
     printf( "      -vi                           verbose dsmcc input display.\n" );
     printf( "      -vo                           verbose dsmcc output display.\n" );
@@ -212,9 +212,18 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
             }
         }
         else if ( strncmp( argstrs[i],  "-s", 2 ) == 0 || strncmp( argstrs[i],  "--srcids", 8 ) == 0 ) {
-            if ( i + 2 < argcnt ) {
+            if ( i + 1 >= argcnt || argstrs[i+1][0] == '-' ) {
+            	// no source ids
+            	return FALSE;
+            }
+            else if (  i + 2 < argcnt && argstrs[i+2][0] != '-' ) {
+            	// two source ids
                 sgs[sgndx].srcidmin = atoi( argstrs[++i] );
                 sgs[sgndx].srcidmax = atoi( argstrs[++i] );
+            }
+            else if ( i + 1 < argcnt ) {
+            	// one source id, make it beginning and ending
+                sgs[sgndx].srcidmin = sgs[sgndx].srcidmax = atoi( argstrs[++i] );
             }
             else {
                 return FALSE;

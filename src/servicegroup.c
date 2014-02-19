@@ -87,6 +87,17 @@ print_log( struct timeval* tvptr, stb_t* stbptr ) {
     printf( "%s.%03i   sg%-5i ", timestr, tvptr->tv_usec / 1000, stbptr->servicegroup );
 }
 
+void stb_send_data( stb_t* stbptr ) {
+    /* lock access to common resources */
+    pthread_mutex_lock( &sg_mutex );
+
+    /* sync state info to packet data and send it out */
+    stb_dsmcc_out( stbptr );
+
+    /* unlock access to common resources */
+    pthread_mutex_unlock( &sg_mutex );
+}
+
 void
 check_for_data( servicegroup_t* sgptr ) {
     static gint stuck_cnt = 0;
@@ -100,30 +111,37 @@ check_for_data( servicegroup_t* sgptr ) {
         stuck_cnt = 0;
     }
 
-    gint cmpr = 0; /* just to get into the loop */
-    while ( cmpr == 0 && is_data( svrptr ) && ( abort_request == 0 ) ) {
+    while ( is_data( svrptr ) && ( abort_request == 0 ) ) {
         /* here if a message is waiting */
         /* check to see if it is one of our stbs */
-        peek_data ( svrptr, ( gchar* )&stb.dsmcc , sizeof stb.dsmcc );
+        peek_data( svrptr, ( gchar* )&stb.dsmcc , sizeof stb.dsmcc );
 
-        if ( sgptr->stbbase != stb.dsmcc.sdb_init_request.sessId[1] ) {   /* not in the group, so dont even try and find it */
+        guint msg_stb_base;
+        guint msg_stb_number;
+        decode_macaddr( stb.dsmcc.sdb_init_request.sessId, &msg_stb_base, &msg_stb_number);
+
+
+        if ( sgptr->stbbase != msg_stb_base ) {   /* not in the group, so dont even try and find it */
             stuck_cnt++;
             break;
         }
 
         /* here if stb in rcv buff is part of this group */
+        // this is a binary search algorithm
         stb_t* stb_b_itr = sgptr->stbbegin;
         stb_t* stb_e_itr = sgptr->stbend;
         while ( ( stb_b_itr <= stb_e_itr ) && ( abort_request == 0 ) ) {
+        	// compute the mid point
             stb_t* stb_m_itr = stb_b_itr + ( ( stb_e_itr - stb_b_itr ) >> 1 );
 
-            /* really only need look at macaddr[4:5] bytes */
-            cmpr = stbcmp( stb_m_itr->macaddr, stb.dsmcc.sdb_init_request.sessId );
+            guint stb_base;
+            guint stb_number;
+            decode_macaddr( stb_m_itr->macaddr, &stb_base, &stb_number);
 
             /* test relationship of stb to stb_m_itr */
-            if ( cmpr == 0 ) {
+            if ( msg_stb_number == stb_number  ) {
                 /* it is one of ours, so pull it out of the buffer */
-                /* proccess the message and maybe show stuff */
+                /* process the message and maybe show stuff */
                 if ( !stb_dsmcc_in( stb_m_itr ) && ( stb_m_itr->flags & VERBOSEIN ) ) {
                     printf( "sg%u stb_dsmcc_in failed\n", sgptr->servicegroup  );
                 }
@@ -132,12 +150,12 @@ check_for_data( servicegroup_t* sgptr ) {
                 stuck_cnt = 0;
                 break;
             }
-            else if ( cmpr < 0 ) {
-                /* sg stb stb_m_itr is less than queued msg, so move bgn up */
+            else if ( msg_stb_number < stb_number ) {
+                /* stb_m_itr is less than queued msg, so move begin up */
                 stb_b_itr = stb_m_itr + 1;
             }
             else {
-                /* sg stb stb_m_itr is gretaer then queued msg, so move end dn */
+                /* stb_m_itr is greater then queued msg, so move end down */
                 stb_e_itr = stb_m_itr - 1;
             }
         } /* while search */
@@ -222,31 +240,26 @@ sg_run_task( void* ptr ) {
             /* run the machine */
             stb_FSM( stbitr, &sourceId, sgptr->srcidmin, sgptr->srcidmax );
 
-            /* flag any stbs that are still running */
+            if ( stbitr->state == e_state_tx ) {
+                    gboolean b_gatedmsg = stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
+                    		              stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
+
+                    /* is stbitr sending a gated message */
+                    gboolean b_send;
+                    b_send = b_timeout && b_gatedmsg;
+
+                    /* is stbitr send'g non-gated message */
+                    b_send |= !b_gatedmsg;
+
+                    if ( b_send ) {
+                        /* here iff stb is transmitting */
+                    	stb_send_data( stbitr );
+                    	stbitr->state = e_state_wait;
+                    }
+                }
+
+            /* flag for any stbs that are still running */
             b_run |= ( stbitr->state != e_state_done );
-
-            gboolean b_gatedmsg = stbitr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
-                                  stbitr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
-
-            /* is stbptr sending a gated message */
-            gboolean b_send;
-            b_send = stbitr->state == e_state_tx && stbitr == stbptr &&
-                     b_timeout && b_gatedmsg;
-
-            /* is stbitr send'g non-gated message */
-            b_send |= stbitr->state == e_state_tx && !b_gatedmsg;
-
-            if ( b_send ) {
-                /* here iff stb is transmitting */
-                /* lock access to common resources */
-                pthread_mutex_lock( &sg_mutex );
-
-                /* sync state info to packet data and send it out */
-                stb_dsmcc_out( stbitr );
-
-                /* unlock access to common resources */
-                pthread_mutex_unlock( &sg_mutex );
-            }
         } /* for ( ) */
 
 
@@ -257,10 +270,6 @@ sg_run_task( void* ptr ) {
             while ( sgptr->next_time.tv_usec >= SECOND_UTIME ) {
                 sgptr->next_time.tv_sec++;
                 sgptr->next_time.tv_usec -= SECOND_UTIME;
-            }
-
-            if ( ++stbptr > sgptr->stbend ) {
-                stbptr = sgptr->stbbegin;
             }
         }
 

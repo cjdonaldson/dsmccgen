@@ -10,7 +10,7 @@
 #include "sdvserver.h"
 #include "dsmcc.h"
 
-enum {
+typedef enum {
     NOINITFLG      = 0x0001,
     LOOPFLG        = 0x0002,
     RETUNEFAILURES = 0x0004,
@@ -23,7 +23,7 @@ enum {
     VERBOSEOUT     = 0x2000,
     DBGFSMABN      = 0x4000,
     DBGFSMFULL     = 0x8000
-};
+} STB_FLAGS;
 
 //#define STBISSTUCK 20
 
@@ -50,7 +50,7 @@ typedef enum e_state estate;
 struct st_settop_box {
     estate    state;
     estate    prevstate;
-    guint     flags;
+    STB_FLAGS flags;
     struct    timeval dwell_time_period;
     struct    timeval dwell_time;
     struct    timeval time_out;
@@ -64,13 +64,14 @@ struct st_settop_box {
     guint     mpegnumber;
 
     /* SDV objects */
-    server_t* srvrptr;
-    guint     servicegroup;
-    guint32   transxId;
-    guint32   msgId, prevmsgId;
+    server_t*         srvrptr;
+    guint             servicegroup;
+    guint32           transxId;
+    DSMCC_MSGID_SDV   msgId;
+    DSMCC_MSGID_SDV   prevmsgId;
 
-    guint     dsmcc_len;
-    dsmcc_t   dsmcc;
+    guint             dsmcc_len;
+    dsmcc_t           dsmcc;
 };
 
 typedef struct st_settop_box stb_t;
@@ -79,6 +80,9 @@ gchar* sessionId_to_string( guint8* sessionId );
 
 void stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr,
                guint stb_base, guint stb_number, guint flags, struct timeval dwell_time_period );
+
+void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number);
+void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number);
 
 gboolean stb_run( stb_t* stbptr,
                   gint* srcidptr, gint srcid_min, gint srcid_max,

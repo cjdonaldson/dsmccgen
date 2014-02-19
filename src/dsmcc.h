@@ -152,7 +152,7 @@ typedef struct _value_string {
     gchar*    strptr;
 } value_string;
 
-enum {
+typedef enum {
     DSMCC_MSGID_SDV_SELECT_REQUEST       = 0x0001,  /* message from stb */
     DSMCC_MSGID_SDV_SELECT_CONFIRM       = 0x0002,  /* message from svr */
     DSMCC_MSGID_SDV_SELECT_INDICATION    = 0x0003,  /* message from svr */
@@ -167,10 +167,10 @@ enum {
     DSMCC_MSGID_SDV_EVENT_RESPONSE       = 0x8006,  /* message from stb */
 
     DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS      = DSMCC_MSGID_SDV_SELECT_INDICATION ||
-    DSMCC_MSGID_SDV_SELECT_RESPONSE ||
-    DSMCC_MSGID_SDV_EVENT_INDICATION ||
-    DSMCC_MSGID_SDV_EVENT_RESPONSE
-};
+                                           DSMCC_MSGID_SDV_SELECT_RESPONSE ||
+                                           DSMCC_MSGID_SDV_EVENT_INDICATION ||
+                                           DSMCC_MSGID_SDV_EVENT_RESPONSE
+} DSMCC_MSGID_SDV;
 
 static const value_string dsmcc_msgid_names[] = {
     { DSMCC_MSGID_SDV_SELECT_REQUEST,    "SlctRqst" },

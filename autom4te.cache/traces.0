@@ -672,12 +672,13 @@ m4trace:configure.ac:25: -1- _m4_warn([obsolete], [The macro `AC_TYPE_SIGNAL' is
 You should run autoupdate.], [/usr/src/packages/autoconf/26/64/autoconf2.5-2.69-2/src/autoconf-2.69/lib/autoconf/types.m4:746: AC_TYPE_SIGNAL is expanded from...
 configure.ac:25: the top level])
 m4trace:configure.ac:25: -1- m4_pattern_allow([^RETSIGTYPE$])
-m4trace:configure.ac:31: -1- m4_pattern_allow([^STDC_HEADERS$])
-m4trace:configure.ac:34: -1- m4_pattern_allow([^HAVE_FCNTL_H$])
-m4trace:configure.ac:37: -1- m4_pattern_allow([^CFLAGS$])
-m4trace:configure.ac:38: -1- m4_pattern_allow([^LDFLAGS$])
-m4trace:configure.ac:43: -1- m4_pattern_allow([^HAVE_ATEXIT$])
-m4trace:configure.ac:48: -1- m4_pattern_allow([^LIB@&t@OBJS$])
-m4trace:configure.ac:48: -1- m4_pattern_allow([^LTLIBOBJS$])
-m4trace:configure.ac:48: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
-m4trace:configure.ac:48: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS
+m4trace:configure.ac:26: -1- m4_pattern_allow([^pid_t$])
+m4trace:configure.ac:33: -1- m4_pattern_allow([^STDC_HEADERS$])
+m4trace:configure.ac:39: -1- m4_pattern_allow([^CFLAGS$])
+m4trace:configure.ac:40: -1- m4_pattern_allow([^LDFLAGS$])
+m4trace:configure.ac:45: -1- m4_pattern_allow([^HAVE_ATEXIT$])
+m4trace:configure.ac:46: -1- m4_pattern_allow([^HAVE_GETTIMEOFDAY$])
+m4trace:configure.ac:52: -1- m4_pattern_allow([^LIB@&t@OBJS$])
+m4trace:configure.ac:52: -1- m4_pattern_allow([^LTLIBOBJS$])
+m4trace:configure.ac:52: -1- _AC_AM_CONFIG_HEADER_HOOK(["$ac_file"])
+m4trace:configure.ac:52: -1- _AM_OUTPUT_DEPENDENCY_COMMANDS

@@ -6,5 +6,4 @@ dsmccgen_LDADD=
 dsmccgen_LDFLAGS=-lpthread
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0/glib
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -pthread
-dsmccgen_CFLAGS=-v -pthread -O0
-
+dsmccgen_CFLAGS=-v -pthread -Og
