@@ -21,7 +21,7 @@
  * Modified by the GLib Team and others 1997-1999.  See the AUTHORS
  * file for a list of people on the GLib Team.  See the ChangeLog
  * files for a list of changes.  These files are distributed with
- * GLib at ftp://ftp.gtk.org/pub/gtk/. 
+ * GLib at ftp://ftp.gtk.org/pub/gtk/.
  */
 
 #ifndef __G_LIB_H__
@@ -80,7 +80,7 @@ typedef double gldouble;
 #endif /* 0 */
 
 typedef void* gpointer;
-typedef const void *gconstpointer;
+typedef const void* gconstpointer;
 
 
 typedef gint32	gssize;

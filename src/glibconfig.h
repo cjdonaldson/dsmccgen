@@ -25,12 +25,12 @@ extern "C" {
 #define G_MINLONG	LONG_MIN
 #define G_MAXLONG	LONG_MAX
 
-typedef signed char gint8;
-typedef unsigned char guint8;
-typedef signed short gint16;
-typedef unsigned short guint16;
-typedef signed int gint32;
-typedef unsigned int guint32;
+    typedef signed char gint8;
+    typedef unsigned char guint8;
+    typedef signed short gint16;
+    typedef unsigned short guint16;
+    typedef signed int gint32;
+    typedef unsigned int guint32;
 
 #if defined (__GNUC__) && (__GNUC__ > 2 || (__GNUC__ == 2 && __GNUC_MINOR__ >= 8))
 #  define G_GNUC_EXTENSION __extension__
@@ -40,8 +40,8 @@ typedef unsigned int guint32;
 
 #define G_HAVE_GINT64 1
 
-G_GNUC_EXTENSION typedef signed long long gint64;
-G_GNUC_EXTENSION typedef unsigned long long guint64;
+    G_GNUC_EXTENSION typedef signed long long gint64;
+    G_GNUC_EXTENSION typedef unsigned long long guint64;
 
 #define G_GINT64_CONSTANT(val)	(G_GNUC_EXTENSION (val##LL))
 
@@ -76,17 +76,16 @@ G_GNUC_EXTENSION typedef unsigned long long guint64;
 
 #define G_THREADS_ENABLED
 #define G_THREADS_IMPL_POSIX
-typedef struct _GStaticMutex GStaticMutex;
-struct _GStaticMutex
-{
-  struct _GMutex *runtime_mutex;
-  union {
-    char   pad[24];
-    double dummy_double;
-    void  *dummy_pointer;
-    long   dummy_long;
-  } aligned_pad_u;
-};
+    typedef struct _GStaticMutex GStaticMutex;
+    struct _GStaticMutex {
+        struct _GMutex* runtime_mutex;
+        union {
+            char   pad[24];
+            double dummy_double;
+            void*  dummy_pointer;
+            long   dummy_long;
+        } aligned_pad_u;
+    };
 #define	G_STATIC_MUTEX_INIT	{ NULL, { { 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0} } }
 #define	g_static_mutex_get_mutex(mutex)   (g_thread_use_default_impl ? ((GMutex*) &((mutex)->aligned_pad_u)) :    g_static_mutex_get_mutex_impl (&((mutex)->runtime_mutex)))
 

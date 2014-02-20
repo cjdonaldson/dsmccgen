@@ -212,17 +212,17 @@ init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx ) {
             }
         }
         else if ( strncmp( argstrs[i],  "-s", 2 ) == 0 || strncmp( argstrs[i],  "--srcids", 8 ) == 0 ) {
-            if ( i + 1 >= argcnt || argstrs[i+1][0] == '-' ) {
-            	// no source ids
-            	return FALSE;
+            if ( i + 1 >= argcnt || argstrs[i + 1][0] == '-' ) {
+                // no source ids
+                return FALSE;
             }
-            else if (  i + 2 < argcnt && argstrs[i+2][0] != '-' ) {
-            	// two source ids
+            else if (  i + 2 < argcnt && argstrs[i + 2][0] != '-' ) {
+                // two source ids
                 sgs[sgndx].srcidmin = atoi( argstrs[++i] );
                 sgs[sgndx].srcidmax = atoi( argstrs[++i] );
             }
             else if ( i + 1 < argcnt ) {
-            	// one source id, make it beginning and ending
+                // one source id, make it beginning and ending
                 sgs[sgndx].srcidmin = sgs[sgndx].srcidmax = atoi( argstrs[++i] );
             }
             else {

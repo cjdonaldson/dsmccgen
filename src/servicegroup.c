@@ -118,7 +118,7 @@ check_for_data( servicegroup_t* sgptr ) {
 
         guint msg_stb_base;
         guint msg_stb_number;
-        decode_macaddr( stb.dsmcc.sdb_init_request.sessId, &msg_stb_base, &msg_stb_number);
+        decode_macaddr( stb.dsmcc.sdb_init_request.sessId, &msg_stb_base, &msg_stb_number );
 
 
         if ( sgptr->stbbase != msg_stb_base ) {   /* not in the group, so dont even try and find it */
@@ -131,12 +131,12 @@ check_for_data( servicegroup_t* sgptr ) {
         stb_t* stb_b_itr = sgptr->stbbegin;
         stb_t* stb_e_itr = sgptr->stbend;
         while ( ( stb_b_itr <= stb_e_itr ) && ( abort_request == 0 ) ) {
-        	// compute the mid point
+            // compute the mid point
             stb_t* stb_m_itr = stb_b_itr + ( ( stb_e_itr - stb_b_itr ) >> 1 );
 
             guint stb_base;
             guint stb_number;
-            decode_macaddr( stb_m_itr->macaddr, &stb_base, &stb_number);
+            decode_macaddr( stb_m_itr->macaddr, &stb_base, &stb_number );
 
             /* test relationship of stb to stb_m_itr */
             if ( msg_stb_number == stb_number  ) {
@@ -150,7 +150,7 @@ check_for_data( servicegroup_t* sgptr ) {
                 stuck_cnt = 0;
                 break;
             }
-            else if ( msg_stb_number < stb_number ) {
+            else if ( stb_number < msg_stb_number ) {
                 /* stb_m_itr is less than queued msg, so move begin up */
                 stb_b_itr = stb_m_itr + 1;
             }
@@ -241,22 +241,22 @@ sg_run_task( void* ptr ) {
             stb_FSM( stbitr, &sourceId, sgptr->srcidmin, sgptr->srcidmax );
 
             if ( stbitr->state == e_state_tx ) {
-                    gboolean b_gatedmsg = stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
-                    		              stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
+                gboolean b_gatedmsg = stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||
+                                      stbptr->msgId == DSMCC_MSGID_SDV_SELECT_REQUEST;
 
-                    /* is stbitr sending a gated message */
-                    gboolean b_send;
-                    b_send = b_timeout && b_gatedmsg;
+                /* is stbitr sending a gated message */
+                gboolean b_send;
+                b_send = b_timeout && b_gatedmsg;
 
-                    /* is stbitr send'g non-gated message */
-                    b_send |= !b_gatedmsg;
+                /* is stbitr send'g non-gated message */
+                b_send |= !b_gatedmsg;
 
-                    if ( b_send ) {
-                        /* here iff stb is transmitting */
-                    	stb_send_data( stbitr );
-                    	stbitr->state = e_state_wait;
-                    }
+                if ( b_send ) {
+                    /* here iff stb is transmitting */
+                    stb_send_data( stbitr );
+                    stbitr->state = e_state_wait;
                 }
+            }
 
             /* flag for any stbs that are still running */
             b_run |= ( stbitr->state != e_state_done );

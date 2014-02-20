@@ -81,8 +81,8 @@ gchar* sessionId_to_string( guint8* sessionId );
 void stb_init( stb_t* stbptr, guint sgnumber, server_t* srvrptr,
                guint stb_base, guint stb_number, guint flags, struct timeval dwell_time_period );
 
-void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number);
-void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number);
+void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number );
+void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number );
 
 gboolean stb_run( stb_t* stbptr,
                   gint* srcidptr, gint srcid_min, gint srcid_max,

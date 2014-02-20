@@ -3,6 +3,14 @@
 
 #include "settopbox.h"
 
+const value_string debug_stbstate_names[] = {
+    { e_state_next, "next" },
+    { e_state_wait, "wait" },
+    { e_state_tx,   "send" },
+    { e_state_done, "done" },
+    { 0, NULL }
+};
+
 /* Verbose diagnostic options
  *
  * Message                  VERBOSEIN  VERBOSEOUT VERBOSEERROR VERBOSEFAIL IGNOREERROR DBGFSMFULL DBGFSMABN
@@ -35,16 +43,16 @@
 gchar vsbuff[500];
 //static pthread_mutex_t stb_mutex  = PTHREAD_MUTEX_INITIALIZER;
 
-void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number) {
+void encode_macaddr( guint8* macaddr, guint stb_base, guint stb_number ) {
     macaddr[1]  = ( stb_base >> 8 & 0xFF );
     macaddr[2]  = ( stb_base & 0xFF );
     macaddr[4]  = ( stb_number >> 8 & 0xFF );
     macaddr[5]  = ( stb_number & 0xFF );
 }
 
-void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number) {
-	*stb_base   = macaddr[1] << 8 | macaddr[2];
-	*stb_number = macaddr[4] << 8 | macaddr[5];
+void decode_macaddr( guint8* macaddr, guint* stb_base, guint* stb_number ) {
+    *stb_base   = macaddr[1] << 8 | macaddr[2];
+    *stb_number = macaddr[4] << 8 | macaddr[5];
 }
 
 void
@@ -593,13 +601,13 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
         }
     }
     else if ( stbptr->state == e_state_wait  ) {
-    	if ( stbptr->sourceId == 0 ) {
+        if ( stbptr->sourceId == 0 ) {
             /* here if stb sent a sign off msg; srcid=0 and waiting */
             fsmdbgtxtptr  = " FSM signoff ";
 
             stbptr->state = e_state_done;
             b_dbgabnevnt  = TRUE;
-    	}
+        }
         else if ( b_timeout ) {
             /* here if stb spent too much time NOT tx'g */
             fsmdbgtxtptr  = " FSM timeout ";
@@ -667,7 +675,14 @@ stb_FSM( stb_t* stbptr, gint* sourceidptr, gint sourceid_min, gint sourceid_max 
     b_display |= stbptr->flags & DBGFSMFULL;
 
     if ( b_display && ( stbptr->state != oldstate || stbptr->msgId != oldmsg ) ) {
-    	printf("fsm ");
+        if ( stbptr->flags & DBGFSMFULL ) {
+            printf( "fsm %s %s --> %s  %s \n",
+                    val_to_string( oldstate, debug_stbstate_names ),
+                    val_to_string( oldmsg, dsmcc_msgid_names ),
+                    val_to_string( stbptr->state, debug_stbstate_names ),
+                    val_to_string( stbptr->msgId, dsmcc_msgid_names )
+                  );
+        }
         dbg_print_stb( fsmdbgtxtptr, stbptr );
     }
 
@@ -690,20 +705,11 @@ sessionId_to_string( guint8 sessionId[] ) {
 
 void
 dbg_print_stb( gchar* str, stb_t* stbptr ) {
-    print_stb( stbptr );
-
     if ( str != NULL ) {
         printf( str );
     }
+    print_stb( stbptr );
 }
-
-const value_string debug_stbstate_names[] = {
-    { e_state_next, "n" },
-    { e_state_wait, "w" },
-    { e_state_tx,   "t" },
-    { e_state_done, "d" },
-    { 0, NULL }
-};
 
 void
 print_stb( stb_t* stbptr ) {
