@@ -1,10 +1,10 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-#AC_PREREQ(2.61)
-AC_INIT(FULL-PACKAGE-NAME, 2.61, BUG-REPORT-ADDRESS)
+AC_PREREQ(2.59)
+AC_INIT(FULL-PACKAGE-NAME, VERSION, BUG-REPORT-ADDRESS)
 AC_CONFIG_SRCDIR([config.h.in])
-AC_CONFIG_HEADER()
+AC_CONFIG_HEADER([config.h])
 
 AM_INIT_AUTOMAKE([-Wall -Werror foreign])
 
@@ -24,13 +24,14 @@ AC_FUNC_STRFTIME
 AC_STRUCT_TM
 AC_TYPE_SIGNAL
 AC_TYPE_PID_T
-AC_CONFIG_HEADERS(1)
+
 
 
 # Checks for libraries.
 
 # Checks for header files.
 AC_HEADER_STDC
+AC_HEADER_TIME
 AC_CHECK_HEADERS([stdlib.h string.h glib-2.0/glib.h sys/timeb.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h sys/socket.h netdb.h])
 AC_CHECK_HEADERS([fcntl.h float.h limits.h])

@@ -43,7 +43,7 @@ am__aclocal_m4_deps = $(top_srcdir)/configure.ac
 am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 	$(ACLOCAL_M4)
 mkinstalldirs = $(install_sh) -d
-CONFIG_HEADER = $(top_builddir)/1
+CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 binPROGRAMS_INSTALL = $(INSTALL_PROGRAM)
@@ -158,7 +158,7 @@ dsmccgen_LDADD =
 dsmccgen_LDFLAGS = -lpthread
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0/glib
 #dsmccgen_CFLAGS=-v -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include -pthread
-dsmccgen_CFLAGS = -v -pthread -Og
+dsmccgen_CFLAGS = -v -pthread -O2
 all: all-am
 
 .SUFFIXES:
