@@ -166,10 +166,10 @@ typedef enum {
     DSMCC_MSGID_SDV_EVENT_INDICATION     = 0x8005,  /* message from svr */
     DSMCC_MSGID_SDV_EVENT_RESPONSE       = 0x8006,  /* message from stb */
 
-    DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS      = DSMCC_MSGID_SDV_SELECT_INDICATION ||
-    DSMCC_MSGID_SDV_SELECT_RESPONSE ||
-    DSMCC_MSGID_SDV_EVENT_INDICATION ||
-    DSMCC_MSGID_SDV_EVENT_RESPONSE
+    DSMCC_MSGID_SDV_FSM_DEBUG_FLAGS      = DSMCC_MSGID_SDV_SELECT_INDICATION |
+                                           DSMCC_MSGID_SDV_SELECT_RESPONSE |
+                                           DSMCC_MSGID_SDV_EVENT_INDICATION |
+                                           DSMCC_MSGID_SDV_EVENT_RESPONSE
 } DSMCC_MSGID_SDV;
 
 static const value_string dsmcc_msgid_names[] = {

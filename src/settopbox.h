@@ -6,6 +6,7 @@
 #include <pthread.h>
 #include <sys/types.h>
 #include <stdio.h>
+#include <sys/time.h>
 
 #include "sdvserver.h"
 #include "dsmcc.h"

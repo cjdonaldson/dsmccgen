@@ -1,5 +1,3 @@
-#include <sys/timeb.h>    /* for timeb to get millitime */
-#include <time.h>
 
 #include "settopbox.h"
 
@@ -186,7 +184,7 @@ stb_dsmcc_out( stb_t* stbptr ) {
         dsmccptr->sdb_select_response.dataLen  = 0;  /* set to 0 */
         gint i = ntohs( dsmccptr->sdb_select_response.response );
 
-        gboolean b_display  = ( stbptr->flags & ( VERBOSEOUT || VERBOSEFAIL ) )
+        gboolean b_display  = ( stbptr->flags & ( VERBOSEOUT | VERBOSEFAIL ) )
                               || ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
@@ -326,7 +324,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
     /* check to see if it is one of our stbs */
     peek_data ( srvrptr, ( gchar* )&stbptr->dsmcc , sizeof stbptr->dsmcc );
 
-    if ( stbcmp( stbptr->macaddr, stbptr->dsmcc.sdb_init_request.sessId ) != 0 ) {
+    if ( stbcmp( ( gchar* )stbptr->macaddr, ( gchar* )stbptr->dsmcc.sdb_init_request.sessId ) != 0 ) {
         /* not in the group, so go no farther */
         return FALSE;
     }
@@ -429,7 +427,7 @@ stb_dsmcc_in( stb_t* stbptr ) {
 
         i                  = ntohs( dsmccptr->sdb_select_indication.reason );
 
-        b_display          = stbptr->flags & ( VERBOSEIN || VERBOSEFAIL );
+        b_display          = stbptr->flags & ( VERBOSEIN | VERBOSEFAIL );
         b_display         |= ( ( i > 0 ) && ( stbptr->flags & VERBOSEERROR ) );
 
         if ( b_display ) {
@@ -706,7 +704,7 @@ sessionId_to_string( guint8 sessionId[] ) {
 void
 dbg_print_stb( gchar* str, stb_t* stbptr ) {
     if ( str != NULL ) {
-        printf( str );
+        printf( "%s", str );
     }
     print_stb( stbptr );
 }

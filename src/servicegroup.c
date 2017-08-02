@@ -1,7 +1,8 @@
 
 #include <stdlib.h>
 #include <sys/timeb.h>    /* for timeb to get millitime */
-#include <time.h>
+#include <unistd.h>       /* for usleep */
+
 #include "dsmcc.h"
 #include "servicegroup.h"
 
@@ -238,7 +239,7 @@ sg_run_task( void* ptr ) {
         stb_t* stbitr = sgptr->stbbegin;
         for ( ; stbitr <= stbend; stbitr++ ) {
             /* run the machine */
-            stb_FSM( stbitr, &sourceId, sgptr->srcidmin, sgptr->srcidmax );
+            stb_FSM( stbitr, ( gint* )&sourceId, sgptr->srcidmin, sgptr->srcidmax );
 
             if ( stbitr->state == e_state_tx ) {
                 gboolean b_gatedmsg = stbptr->msgId == DSMCC_MSGID_SDV_INIT_REQUEST ||

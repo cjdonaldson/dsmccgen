@@ -1,8 +1,8 @@
 
 #include <signal.h>       /* for signal() and atexit() */
-#include <sys/stat.h>     /* for open() */
 #include <fcntl.h>        /* for open() */
-
+#include <unistd.h>       /* for read, close, sleep */
+#include <stdlib.h>       /* for atoi and atexit */
 
 #include "sdvserver.h"
 #include "servicegroup.h"
@@ -23,6 +23,9 @@ servicegroup_t sgs[MAX_SGS];
 
 gint     servercount;
 server_t servers[MAX_SGS];
+
+gboolean
+init_and_parse_cli( gint argcnt, gchar* argstrs[], int sgndx );
 
 void
 usage( gchar* appname ) {

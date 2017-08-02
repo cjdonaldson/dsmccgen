@@ -1,5 +1,6 @@
 
 #include <stdlib.h>
+#include <unistd.h>  // for close()
 
 #include "dsmcc.h"
 #include "sdvserver.h"
@@ -137,7 +138,7 @@ peek_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
      */
     gint i      = sizeof svrptr->dst_addr;
     gint msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, MSG_PEEK,
-                            ( struct sockaddr* )&svrptr->dst_addr, &i );
+                            ( struct sockaddr* )&svrptr->dst_addr, ( socklen_t * )&i );
 
     if ( msglen == -1 ) {
         perror( "peek_data" );
@@ -154,7 +155,7 @@ recv_data( server_t* svrptr, gchar* buffptr, int buff_len ) {
      */
     gint i      = sizeof svrptr->dst_addr;
     gint msglen = recvfrom( svrptr->sockfd, buffptr, buff_len, 0,
-                            ( struct sockaddr* )&svrptr->dst_addr, &i );
+                            ( struct sockaddr* )&svrptr->dst_addr, ( socklen_t * )&i );
 
     if ( msglen == -1 ) {
         perror( "recv_data" );
@@ -167,7 +168,7 @@ void
 close_channel( server_t* svrptr ) {
     if ( svrptr->socket_initd ) {
         printf( "closing server: %s\n", svrptr->svmip );
-        close( &svrptr->sockfd );
+        close( ( int )&svrptr->sockfd );
         svrptr->sockfd       = 0;
         svrptr->socket_initd = FALSE;
 
